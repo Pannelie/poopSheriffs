@@ -28,7 +28,7 @@ _Rum_
 * Dubbelrum kostar 1000 kr / natt
 * Svit kostar 1500 kr / natt
 * Det går att ha olika typer av rum i en bokning men antalet gäster måste stämma överens med ovan logik. Exempel: 3 personer behöver antingen boka en svit eller ett enkelrum och ett dubbelrum.
-* Ni Får men ni behöver INTE ta datum i beaktning.
+* Ni FÅR OM NI VILL men ni BEHÖVER INTE ta datum i beaktning.
 
 
 #### Tekniska krav
