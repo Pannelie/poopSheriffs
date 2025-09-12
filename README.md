@@ -43,7 +43,7 @@ _Rum_
 **För Godkänt:**
 * Uppfyller alla krav i kravspecifikationen.
 * Uppfyller alla tekniska krav.
-* Tydlig dokumentation för alla era API-anrop
+* Tydlig dokumentation för alla era API-anrop (här behöver även *grund-URL:en* ingå).
 * Det finns validering och felhantering, exempelvis skall felaktig data som skickas in i body hanteras på ett lämpligt sätt.
 
 ## Inlämning
