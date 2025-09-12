@@ -1,0 +1,16 @@
+org: ${file(./config.yml):aws.org}
+service: bonzai-api
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  region: eu-north-1
+  iam: role:${file(.config.yml):aws.role}
+
+functions:
+  hello:
+    handler: handler.hello
+    events:
+      - httpApi:
+          path: /
+          method: get
