@@ -1,4 +1,4 @@
-# Gruppexamination: Bonz.ai 
+# Gruppexamination: Bonz.ai API
 
 ## Bakgrund
 
