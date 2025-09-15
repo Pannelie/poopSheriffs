@@ -5,12 +5,55 @@ provider:
   name: aws
   runtime: nodejs20.x
   region: eu-north-1
-  iam: role:${file(.config.yml):aws.role}
+  iam: 
+    role: ${file(.config.yml):aws.role}
 
 functions:
-  hello:
-    handler: handler.hello
+  GetBookings:
+      handler: functions/GetBookings/index.handler
+      events:
+          - httpApi:
+              path: /api/bookings
+              method: GET
+  GetBookingById:
+      handler: functions/GetBookingById/index.handler
+      events:
+          - httpApi:
+              path: /api/bookings/{id}
+              method: GET
+  PostInsult:
+      handler: functions/PostBookings/index.handler
+      events:
+          - httpApi:
+              path: /api/bookings
+              method: POST
+  PostInsult:
+    handler: functions/DeleteBookingById/index.handler
     events:
       - httpApi:
-          path: /
-          method: get
+        path: /api/bookings{id}
+        method: DELETE
+  PostInsult:
+    handler: functions/ChangeBookingById/index.handler
+    events:
+        - httpApi:
+            path: /api/bookings{id}
+            method: PUT
+
+resources: 
+  Resources: 
+    BonzaiTable:
+      Type: AWS::DynamoDB::Table
+      Properties: 
+        TableName: bonzai-table
+        AttributeDefinitions: 
+          - AttributeName: pk
+            AttributeType: S
+          - AttributeName: sk
+            AttributeType: S
+        KeySchema: 
+          - AttributeName: pk
+            KeyType: HASH
+          - AttributeName: sk
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
