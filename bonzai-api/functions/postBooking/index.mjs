@@ -8,10 +8,10 @@ import { errorHandler } from "../../middlewares/errorHandler.mjs";
 export const handler = middy(async (event) => {
   const result = await addBooking(event.body);
   if (result) {
-    sendResponse(201, { message: "Room successfully booked", booking: event.body });
+    return sendResponse(201, { message: "Room successfully booked", booking: event.body });
   } else {
     return sendResponse(404, { success: false, message: "Room could not be booked" });
   }
 })
-  .use(httpJsonBodyParser)
+  .use(httpJsonBodyParser())
   .use(errorHandler());
