@@ -13,6 +13,7 @@ export const addBooking = async ({ userEmail, roomsBooked, guestCount }) => {
       guestCount: { N: guestCount.toString() },
       roomsBooked: {
         L: roomsBooked.map((room) => ({ S: room })),
+        //kan komma att behöva ändra struktur beroende på hur vi räknar antal rum. objekt med keyvalue för antal tillgängliga kanske?
       },
       createdAt: { S: new Date().toISOString() },
     },
