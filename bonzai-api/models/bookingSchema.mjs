@@ -1,7 +1,7 @@
 import Joi from "joi";
 
 export const bookingSchema = Joi.object({
-  bookingId: Joi.string().required(),
+  // bookingId: Joi.string().required(),
   name: Joi.string().min(3).max(30).required(),
   email: Joi.string().email().required(),
   guests: Joi.number().min(1).required(),
@@ -17,5 +17,4 @@ export const bookingSchema = Joi.object({
   checkIn: Joi.date().greater("now").required(),
   checkOut: Joi.date().iso().optional(),
   totalPrice: Joi.forbidden(),
-
-});
+})
