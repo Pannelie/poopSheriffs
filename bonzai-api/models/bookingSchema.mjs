@@ -1,6 +1,7 @@
 import Joi from 'joi';
 
-  bookingId: Joi.string().required(),
+export const bookingSchema = Joi.object({
+bookingId: Joi.string().required(),
   name: Joi.string().min(3).max(30).required(),
   email: Joi.string().email().required(),
   guests: Joi.number().min(1).required(),
@@ -17,3 +18,4 @@ import Joi from 'joi';
   checkOut: Joi.date().iso().optinal(),
   totalPrice: Joi.forbidden()
 })
+  
