@@ -19,8 +19,9 @@ functions:
         handler: functions/GetBookingById/index.handler
         events:
             - httpApi:
-                  path: /api/bookings/{id}
+                  path: /api/booking/{id}
                   method: GET
+
     PostBookings:
         handler: functions/PostBookings/index.handler
         events:
@@ -31,10 +32,11 @@ functions:
         handler: functions/DeleteBookingById/index.handler
         events:
             - httpApi:
-                  path: /api/bookings/{id}
+                  path: /api/booking/{id}
                   method: DELETE
-    ChangeBookingById:
-        handler: functions/ChangeBookingById/index.handler
+
+    UpdateBooking:
+        handler: functions/UpdateBookingById/index.handler
         events:
             - httpApi:
                   path: /api/bookings/{id}
