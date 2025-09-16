@@ -11,6 +11,11 @@
   "type": "module",
 
   "dependencies": {
-    "joi": "^18.0.1"
+
+    "@middy/core": "^6.4.5",
+    "@middy/http-json-body-parser": "^6.4.5",
+    "joi": "^18.0.1",
+    "uuid": "^13.0.0"
+
   }
 }
