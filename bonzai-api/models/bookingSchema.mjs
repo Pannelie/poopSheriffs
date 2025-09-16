@@ -17,4 +17,5 @@ export const bookingSchema = Joi.object({
   checkIn: Joi.date().greater("now").required(),
   checkOut: Joi.date().iso().optional(),
   totalPrice: Joi.forbidden(),
+
 });
