@@ -5,53 +5,53 @@ provider:
   name: aws
   runtime: nodejs20.x
   region: eu-north-1
-  iam: 
+  iam:
     role: ${file(./config.yml):aws.role}
 
 functions:
   GetBookings:
-      handler: functions/GetBookings/index.handler
-      events:
-          - httpApi:
-              path: /api/bookings
-              method: GET
+    handler: functions/GetBookings/index.handler
+    events:
+      - httpApi:
+          path: /api/bookings
+          method: GET
   GetBookingById:
-      handler: functions/GetBookingById/index.handler
-      events:
-          - httpApi:
-              path: /api/bookings/{id}
-              method: GET
-  PostInsult:
-      handler: functions/PostBookings/index.handler
-      events:
-          - httpApi:
-              path: /api/bookings
-              method: POST
-  PostInsult:
+    handler: functions/GetBookingById/index.handler
+    events:
+      - httpApi:
+          path: /api/bookings/{id}
+          method: GET
+  PostBooking:
+    handler: functions/PostBooking/index.handler
+    events:
+      - httpApi:
+          path: /api/bookings
+          method: POST
+  DeleteBookingById:
     handler: functions/DeleteBookingById/index.handler
     events:
       - httpApi:
-        path: /api/bookings{id}
-        method: DELETE
-  PostInsult:
+          path: /api/bookings/{id}
+          method: DELETE
+  ChangeBookingById:
     handler: functions/ChangeBookingById/index.handler
     events:
-        - httpApi:
-            path: /api/bookings{id}
-            method: PUT
+      - httpApi:
+          path: /api/bookings/{id}
+          method: PUT
 
-resources: 
-  Resources: 
+resources:
+  Resources:
     BonzaiTable:
       Type: AWS::DynamoDB::Table
-      Properties: 
+      Properties:
         TableName: bonzai-table
-        AttributeDefinitions: 
+        AttributeDefinitions:
           - AttributeName: pk
             AttributeType: S
           - AttributeName: sk
             AttributeType: S
-        KeySchema: 
+        KeySchema:
           - AttributeName: pk
             KeyType: HASH
           - AttributeName: sk
