@@ -7,8 +7,8 @@ export const addBooking = async ({ name, email, rooms, guests, checkIn, checkOut
   const command = new PutItemCommand({
     TableName: "bonzai-table",
     Item: {
-      pk: { S: `BOOKING#${bookingId}` },
-      sk: { S: `USER#${email}` },
+      pk: { S: `BOOKING` },
+      sk: { S: bookingId },
       itemType: { S: "booking" },
       bookingId: { S: bookingId },
       name: { S: name },
@@ -31,9 +31,9 @@ export const addBooking = async ({ name, email, rooms, guests, checkIn, checkOut
 
   try {
     await client.send(command);
-    return { success: true, bookingId };
+    return { bookingId, name, guests, rooms, checkIn, checkOut };
   } catch (error) {
     console.error(`Error from db: `, error.message);
-    return { success: false };
+    return false;
   }
 };
