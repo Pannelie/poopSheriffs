@@ -6,7 +6,7 @@ provider:
   runtime: nodejs20.x
   region: eu-north-1
   iam: 
-    role: ${file(.config.yml):aws.role}
+    role: ${file(./config.yml):aws.role}
 
 functions:
   GetBookings:
