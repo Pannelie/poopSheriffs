@@ -7,7 +7,6 @@ provider:
     region: eu-north-1
     iam:
         role: ${file(./config.yml):aws.role}
-        # was missing / in .config here
 
 functions:
     GetBookings:
@@ -32,14 +31,12 @@ functions:
         handler: functions/DeleteBookingById/index.handler
         events:
             - httpApi:
-                  # added / before {id}
                   path: /api/bookings/{id}
                   method: DELETE
     ChangeBookingById:
         handler: functions/ChangeBookingById/index.handler
         events:
             - httpApi:
-                  # added / before {id}
                   path: /api/bookings/{id}
                   method: PUT
 

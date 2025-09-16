@@ -8,5 +8,9 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "module"
+  "type": "module",
+
+  "dependencies": {
+    "joi": "^18.0.1"
+  }
 }

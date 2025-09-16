@@ -1,11 +1,15 @@
-// BASIC CODE TO TEST INSOMNIA
+import { sendResponse } from '../../responses/index.mjs';
+import { errorHandler } from '../../middlewares/errorHandler.mjs';
 
-export const handler = async (event) => {
-	return {
-		statusCode: 200,
-		body: JSON.stringify({ message: 'Does this thing work?' }),
-	};
-};
+export const handler = errorHandler(async (event) => {
+	if (event.body) {
+		return sendResponse(200, event.body);
+		// returns everything inside the body of the object if it exists
+	}
 
-// REMEMBER TO DO A "SERVERLESS DEPLOY" AFTER CHANGED CODE -- IF NOT INSOMNIA AND LAMBDA ETC WILL NOT WORK.
-// Serverless deploy is like saving a file.
+	// sendResponse checks the body, if it is empty then it returns a comforting message instead :-)
+	return sendResponse(200, {
+		message:
+			"There are no bookings right now. Don't look so sad - I am sure there will be some later... :-)",
+	});
+});
