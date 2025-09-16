@@ -19,26 +19,29 @@ functions:
       handler: functions/GetBookingById/index.handler
       events:
           - httpApi:
-              path: /api/bookings/{id}
+              path: /api/booking/{id}
               method: GET
-  PostInsult:
+
+  PostBookings:
       handler: functions/PostBookings/index.handler
       events:
           - httpApi:
               path: /api/bookings
               method: POST
-  PostInsult:
+  DeleteBookingById:
     handler: functions/DeleteBookingById/index.handler
     events:
-      - httpApi:
-        path: /api/bookings{id}
-        method: DELETE
-  PostInsult:
-    handler: functions/ChangeBookingById/index.handler
+          - httpApi:
+              path: /api/booking/{id}
+              method: DELETE
+
+  UpdateBooking:
+    handler: functions/UpdateBookingById/index.handler
     events:
-        - httpApi:
-            path: /api/bookings{id}
-            method: PUT
+          - httpApi:
+              path: /api/bookings/{id}
+              method: PUT
+
 
 resources: 
   Resources: 
