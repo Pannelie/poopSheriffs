@@ -21,7 +21,8 @@ functions:
           - httpApi:
               path: /api/booking/{id}
               method: GET
-  PostBooking:
+
+  PostBookings:
       handler: functions/PostBookings/index.handler
       events:
           - httpApi:
@@ -40,6 +41,7 @@ functions:
           - httpApi:
               path: /api/bookings/{id}
               method: PUT
+
 
 resources: 
   Resources: 
