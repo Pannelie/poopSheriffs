@@ -13,3 +13,5 @@ export const handler = errorHandler(async (event) => {
 			"There are no bookings right now. Don't look so sad - I am sure there will be some later... :-)",
 	});
 });
+
+// TEST COMMENT HERE BLABLAK
