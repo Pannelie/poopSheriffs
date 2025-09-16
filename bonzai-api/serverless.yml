@@ -6,7 +6,7 @@ provider:
   runtime: nodejs20.x
   region: eu-north-1
   iam: 
-    role: ${file(.config.yml):aws.role}
+    role: ${file(./config.yml):aws.role}
 
 functions:
   GetBookings:
@@ -21,23 +21,23 @@ functions:
           - httpApi:
               path: /api/bookings/{id}
               method: GET
-  PostInsult:
+  PostBookings:
       handler: functions/PostBookings/index.handler
       events:
           - httpApi:
               path: /api/bookings
               method: POST
-  PostInsult:
+  DeleteBookingById:
     handler: functions/DeleteBookingById/index.handler
     events:
       - httpApi:
-        path: /api/bookings{id}
-        method: DELETE
-  PostInsult:
+          path: /api/bookings/{id}
+          method: DELETE
+  ChangeBookingById:
     handler: functions/ChangeBookingById/index.handler
     events:
         - httpApi:
-            path: /api/bookings{id}
+            path: /api/bookings/{id}
             method: PUT
 
 resources: 
