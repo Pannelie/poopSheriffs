@@ -2,28 +2,38 @@ import { client } from "./client.mjs";
 import { PutItemCommand } from "@aws-sdk/client-dynamodb";
 import { generateId } from "../utils/uuid.mjs";
 
-export const addBooking = async ({ userEmail, roomsBooked, guestCount }) => {
+export const addBooking = async ({ name, email, rooms, guests, checkIn, checkOut }) => {
+  const bookingId = generateId(4);
   const command = new PutItemCommand({
     TableName: "bonzai-table",
     Item: {
-      pk: { S: `BOOKING#${generateId(4)}` },
-      sk: { S: `USER#${userEmail}` },
+      pk: { S: `BOOKING#${bookingId}` },
+      sk: { S: `USER#${email}` },
       itemType: { S: "booking" },
-      userEmail: { S: userEmail },
-      guestCount: { N: guestCount.toString() },
-      roomsBooked: {
-        L: roomsBooked.map((room) => ({ S: room })),
-        //kan komma att behöva ändra struktur beroende på hur vi räknar antal rum. objekt med keyvalue för antal tillgängliga kanske?
+      bookingId: { S: bookingId },
+      name: { S: name },
+      email: { S: email },
+      guests: { N: guests.toString() },
+      rooms: {
+        L: rooms.map((room) => ({
+          M: {
+            roomType: { S: room.roomType },
+            amount: { N: room.amount.toString() },
+          },
+        })),
       },
+      //Vill vi ha defaultvärden i Schema just nu?
+      checkIn: { S: new Date(checkIn).toISOString() },
+      checkOut: checkOut ? { S: new Date(checkOut).toISOString() } : { NULL: true },
       createdAt: { S: new Date().toISOString() },
     },
   });
 
   try {
     await client.send(command);
-    return true;
+    return { success: true, bookingId };
   } catch (error) {
     console.error(`Error from db: `, error.message);
-    return false;
+    return { success: false };
   }
 };
