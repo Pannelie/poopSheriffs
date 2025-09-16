@@ -9,13 +9,11 @@
   "author": "",
   "license": "ISC",
   "type": "module",
-
   "dependencies": {
-
+    "@aws-sdk/client-dynamodb": "^3.888.0",
+    "uuid": "^13.0.0",
     "@middy/core": "^6.4.5",
     "@middy/http-json-body-parser": "^6.4.5",
-    "joi": "^18.0.1",
-    "uuid": "^13.0.0"
-
+    "joi": "^18.0.1"
   }
 }
