@@ -3,7 +3,7 @@ import { PutCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
 import { getRoomCapacity, getRoomPrice } from "./room.mjs";
 import { generateId } from "../utils/uuid.mjs";
 
-const getAllBookings = async () => {
+export const getAllBookings = async () => {
   const command = new QueryCommand({
     TableName: "bonzai-table",
     KeyConditionExpression: "pk = :pk",
@@ -18,7 +18,7 @@ const getAllBookings = async () => {
     return result.Items || [];
   } catch (error) {
     console.error({ message: `${error.message} from getAllBookings` });
-    return 0;
+    throw new Error("Could not fetch bookings");
   }
 };
 
