@@ -45,9 +45,21 @@ export const addBooking = async ({ name, email, rooms, guests, checkIn, checkOut
 
   //Kontrollerar hur många rum som är bokade totalt på hotellet
   const totalBooked = await getTotalBookedRooms();
-  if (totalBooked + newBookingRooms > 20) {
+  const maxRooms = 20;
+  const availableRooms = maxRooms - totalBooked;
+
+  if (availableRooms <= 0) {
     console.error("Cannot book rooms: hotel would exceed max capacity of 20 rooms.");
     return { success: false, message: "No rooms available: hotel is fully booked" };
+  }
+
+  if (newBookingRooms > availableRooms) {
+    console.error("Cannot book rooms: hotel would exceed max capacity of 20 rooms.");
+    return {
+      success: false,
+      message: `Only ${availableRooms} room(s) available`,
+      availableRooms,
+    };
   }
 
   let totalPrice = 0;
@@ -100,7 +112,7 @@ export const addBooking = async ({ name, email, rooms, guests, checkIn, checkOut
 
   try {
     await docClient.send(command);
-    return { bookingId, name, guests, rooms, totalRooms: newBookingRooms, totalPrice, checkIn, checkOut };
+    return { success: true, bookingId, name, guests, rooms, totalRooms: newBookingRooms, totalPrice, checkIn, checkOut };
   } catch (error) {
     console.error(`Error from db: `, error.message);
     return { success: false, message: `Error saving booking: ${error.message}` };
