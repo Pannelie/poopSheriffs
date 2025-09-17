@@ -21,7 +21,7 @@ export const handler = middy(async (event) => {
       bookings,
     });
   }
-}).use(errorHandler);
+}).use(errorHandler());
 
 // try {
 // 	// a command that scans the entire table -- the client sends it -- returns items (in dynamodb format)
