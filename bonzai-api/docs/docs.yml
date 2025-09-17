@@ -1,0 +1,145 @@
+openapi: 3.0.1
+info:
+    title: Bonzai Booking API
+    version: 1.0.0
+    description: API Documentation for Bonzai Booking API
+paths:
+    # -------------------------- GET: GetBookings -------------------------------
+    /api/bookings:
+        get:
+            tags:
+                - API bookings
+            summary: Get all bookings
+            responses:
+                '200':
+                    description: Successful responses
+                    content:
+                        application/json:
+                            schema:
+                                oneOf:
+                                    # successful, but when there are no bookings yet
+                                    - type: object
+                                      properties:
+                                          message:
+                                              type: string
+                                              example: There are no bookings right now. Do not look so sad - I am sure there will be some later... :-)
+                                    # successful, but when there are bookings
+                                    - type: array
+                                      items:
+                                          type: object
+                                          properties:
+                                              bookingId:
+                                                  type: string
+                                                  example: '8759'
+                                              name:
+                                                  type: string
+                                                  example: 'Ulf-Are Svampsson'
+                                              email:
+                                                  type: string
+                                                  example: 'svamp@email.com'
+                                              guests:
+                                                  type: integer
+                                                  example: 2
+                                              rooms:
+                                                  type: array
+                                                  items:
+                                                      type: object
+                                                      properties:
+                                                          roomType:
+                                                              type: string
+                                                              example: 'double'
+                                                          amount:
+                                                              type: integer
+                                                              example: 1
+                '500':
+                    description: Unsuccessful response - server error
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    message:
+                                        type: string
+                                        # CHECK WHAT MSG 500 ACTUALLY GIVES
+                                        example: Internal server error (at least that is what I think it says I need to check)
+
+    # -------------------------- GET: GetBookingById -------------------------------
+    /api/bookings/{id}:
+        get:
+            tags:
+                - API bookings
+            description: Fetch a spesific booking with ID parameter
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: Successful, found booking
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    bookingId:
+                                        type: string
+                                        example: 12c5
+                                    checkIn:
+                                        type: string
+                                    checkOut:
+                                        type: string
+                                    guests:
+                                        type: integer
+                                    rooms:
+                                        type: array
+                                        items:
+                                            type: object
+                                            properties:
+                                                roomType:
+                                                    type: string
+                                                amount:
+                                                    type: integer
+                                    createdAt:
+                                        type: string
+                                    itemType:
+                                        type: string
+                                    pk:
+                                        type: string
+                                    sk:
+                                        type: string
+                                    email:
+                                        type: string
+                                    name:
+                                        type: string
+                '400':
+                    description: Wrong ID input
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    message:
+                                        type: string
+                                        example: This ID does not exist. Please put on glasses and take a closer look! 8-)
+                '404':
+                    description: Cannot find booking by this ID
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    message:
+                                        type: string
+                                        example: There is no booking with the id of 5487 here...? :---)
+                '500':
+                    description: Internal server error
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    message:
+                                        type: string
+                                        example: Something went EXTREMELY wrong here when you get an error 500!! -- no bookings, no nothing.
