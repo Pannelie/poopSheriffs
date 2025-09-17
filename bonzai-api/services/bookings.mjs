@@ -102,6 +102,54 @@ export const addBooking = async ({ name, email, rooms, guests, checkIn, checkOut
   }
 };
 
+export const updateBooking = async (bookingId, updateData) => {
+  // Hämta befintlig bokning först (om du vill behålla fält som inte skickas in)
+  const getCommand = new GetCommand({
+    TableName: "bonzai-table",
+    Key: {
+      pk: "BOOKING",
+      sk: bookingId,
+    },
+  });
+
+  let existingBooking;
+  try {
+    const result = await docClient.send(getCommand);
+    if (!result.Item) {
+      return { success: false, message: "Booking not found" };
+    }
+    existingBooking = result.Item;
+  } catch (error) {
+    return { success: false, message: `Error fetching booking: ${error.message}` };
+  }
+
+  // Skapa nytt booking-objekt genom att slå ihop befintlig och ny data
+  const updatedBooking = {
+    ...existingBooking,
+    ...updateData,
+    pk: "BOOKING",
+    sk: bookingId,
+    bookingId,
+    checkIn: updateData.checkIn ? new Date(updateData.checkIn).toISOString() : existingBooking.checkIn,
+    checkOut: updateData.checkOut
+      ? new Date(updateData.checkOut).toISOString()
+      : existingBooking.checkOut ?? null,
+  };
+
+  const putCommand = new PutCommand({
+    TableName: "bonzai-table",
+    Item: updatedBooking,
+  });
+
+  try {
+    await docClient.send(putCommand);
+    return { success: true, booking: updatedBooking };
+  } catch (error) {
+    return { success: false, message: `Error updating booking: ${error.message}` };
+  }
+};
+
+
 export const deleteBooking = async (bookingId) => {
   try {
     const params = {

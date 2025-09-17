@@ -9,36 +9,36 @@ provider:
     role: ${file(./config.yml):aws.role}
 
 functions:
-  GetBookings:
-    handler: functions/GetBookings/index.handler
-    events:
-      - httpApi:
-          path: /api/bookings
-          method: GET
-  GetBookingById:
-    handler: functions/GetBookingById/index.handler
-    events:
-      - httpApi:
-          path: /api/bookings/{id}
-          method: GET
-  PostBooking:
-    handler: functions/PostBooking/index.handler
-    events:
-      - httpApi:
-          path: /api/bookings
-          method: POST
-  DeleteBookingById:
-    handler: functions/DeleteBookingById/index.handler
-    events:
-      - httpApi:
-          path: /api/bookings/{id}
-          method: DELETE
-  UpdateBooking:
-    handler: functions/UpdateBookingById/index.handler
-    events:
-      - httpApi:
-          path: /api/bookings/{id}
-          method: PUT
+    GetBookings:
+        handler: functions/GetBookings/index.handler
+        events:
+            - httpApi:
+                  path: /api/bookings
+                  method: GET
+    GetBookingById:
+        handler: functions/GetBookingById/index.handler
+        events:
+            - httpApi:
+                  path: /api/bookings/{id}
+                  method: GET
+    postBooking:
+        handler: functions/PostBooking/index.handler
+        events:
+            - httpApi:
+                  path: /api/bookings
+                  method: POST
+    DeleteBookingById:
+        handler: functions/DeleteBookingById/index.handler
+        events:
+            - httpApi:
+                  path: /api/bookings/{id}
+                  method: DELETE
+    UpdateBooking:
+        handler: functions/UpdateBookingById/index.handler
+        events:
+            - httpApi:
+                  path: /api/bookings/{id}
+                  method: PUT
 
 resources:
   Resources:
