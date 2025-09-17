@@ -13,7 +13,6 @@ export const handler = middy(async (event) => {
     return sendResponse(200, {
       success: true,
       message: "There are no bookings right now. Don’t look so sad – I’m sure there will be some later…",
-      bookings: [],
     });
   } else {
     return sendResponse(200, {
