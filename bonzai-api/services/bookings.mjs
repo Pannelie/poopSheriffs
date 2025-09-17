@@ -1,5 +1,6 @@
 import { docClient } from "./client.mjs";
-import { GetCommand, PutCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
+import { PutCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
+import { getRoomCapacity, getRoomPrice } from "./room.mjs";
 import { generateId } from "../utils/uuid.mjs";
 
 const getTotalBookedRooms = async () => {
@@ -18,22 +19,6 @@ const getTotalBookedRooms = async () => {
     return totalBooked;
   } catch (error) {
     console.error({ message: `${error.message} from getTotalBookedRooms` });
-    return 0;
-  }
-};
-
-const getRoomPrice = async (roomType) => {
-  const command = new GetCommand({
-    TableName: "bonzai-table",
-    Key: { pk: `ROOM#${roomType}`, sk: "INFO" },
-    ProjectionExpression: "price",
-  });
-
-  try {
-    const result = await docClient.send(command);
-    return result.Item ? Number(result.Item.price) : 0;
-  } catch (error) {
-    console.error(`Error fetching price for room type ${roomType}:`, error.message);
     return 0;
   }
 };
@@ -63,9 +48,28 @@ export const addBooking = async ({ name, email, rooms, guests, checkIn, checkOut
   }
 
   let totalPrice = 0;
+  let totalCapacity = 0;
+
   for (const room of rooms) {
+    const { roomType, amount } = room;
+
     const price = await getRoomPrice(room.roomType);
-    totalPrice += price * room.amount;
+    const maxGuestsPerRoom = await getRoomCapacity(roomType);
+
+    totalPrice += price * amount;
+    totalCapacity += maxGuestsPerRoom * amount;
+
+    // Kontrollera att gäster inte bryter mot max per rumstyp
+    if (guests / newBookingRooms > maxGuestsPerRoom) {
+      const roomText = newBookingRooms > 1 ? "rooms" : "room";
+      return {
+        success: false,
+        message: `Too many guests for your ${roomText}. Please choose another alternative`,
+      };
+    }
+  }
+  if (guests > totalCapacity) {
+    return { success: false, message: "Too many guests for selected rooms" };
   }
 
   const item = {
@@ -87,27 +91,6 @@ export const addBooking = async ({ name, email, rooms, guests, checkIn, checkOut
   const command = new PutCommand({
     TableName: "bonzai-table",
     Item: item,
-    // Item: {
-    //   pk: { S: `BOOKING` },
-    //   sk: { S: bookingId },
-    //   itemType: { S: "booking" },
-    //   bookingId: { S: bookingId },
-    //   name: { S: name },
-    //   email: { S: email },
-    //   guests: { N: guests.toString() },
-    //   rooms: {
-    //     L: rooms.map((room) => ({
-    //       M: {
-    //         roomType: { S: room.roomType },
-    //         amount: { N: room.amount.toString() },
-    //       },
-    //     })),
-    //   },
-    //   //Vill vi ha defaultvärden i Schema just nu?
-    //   checkIn: { S: new Date(checkIn).toISOString() },
-    //   checkOut: checkOut ? { S: new Date(checkOut).toISOString() } : { NULL: true },
-    //   createdAt: { S: new Date().toISOString() },
-    // },
   });
 
   try {
