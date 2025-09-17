@@ -1,9 +1,13 @@
+import { client } from '../../services/client.mjs';
+import { GetItemCommand } from '@aws-sdk/client-dynamodb';
+import { unmarshall } from '@aws-sdk/util-dynamodb';
 import { sendResponse } from '../../responses/index.mjs';
-import { getBookingById } from '../../services/getBookingById.mjs';
 
 export const handler = async (event) => {
+	console.log('Event:', JSON.stringify(event, null, 2));
+
 	try {
-		const { id } = event.pathParameters || '';
+		const { id } = event.pathParameters || {};
 
 		if (!id) {
 			return sendResponse(400, {
@@ -12,14 +16,25 @@ export const handler = async (event) => {
 			});
 		}
 
-		// booking is undefined right now, until I get it from the database later
-		const booking = await getBookingById(id);
+		const command = new GetItemCommand({
+			TableName: 'bonzai-table',
+			Key: {
+				pk: { S: 'BOOKING' },
+				sk: { S: id },
+			},
+		});
 
-		if (!booking) {
+		const result = await client.send(command);
+
+		if (!result.Item) {
 			return sendResponse(404, {
 				message: `There is no booking with the id of ${id} here...? :---)`,
 			});
 		}
+
+		// Konverter DynamoDB Item til vanlig JS objekt
+		const booking = unmarshall(result.Item);
+
 		return sendResponse(200, booking);
 	} catch (error) {
 		return sendResponse(500, {
