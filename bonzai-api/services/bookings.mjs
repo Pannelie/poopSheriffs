@@ -3,7 +3,7 @@ import { PutCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
 import { getRoomCapacity, getRoomPrice } from "./room.mjs";
 import { generateId } from "../utils/uuid.mjs";
 
-const getTotalBookedRooms = async () => {
+const getAllBookings = async () => {
   const command = new QueryCommand({
     TableName: "bonzai-table",
     KeyConditionExpression: "pk = :pk",
@@ -15,10 +15,9 @@ const getTotalBookedRooms = async () => {
 
   try {
     const result = await docClient.send(command);
-    const totalBooked = result.Items.reduce((sum, item) => sum + Number(item.totalRooms), 0);
-    return totalBooked;
+    return result;
   } catch (error) {
-    console.error({ message: `${error.message} from getTotalBookedRooms` });
+    console.error({ message: `${error.message} from getAllBookings` });
     return 0;
   }
 };
@@ -29,7 +28,7 @@ export const addBooking = async ({ name, email, rooms, guests, checkIn, checkOut
   const newBookingRooms = rooms.reduce((sum, room) => sum + room.amount, 0);
 
   //Kontrollerar hur många rum som är bokade totalt på hotellet
-  const totalBooked = await getTotalBookedRooms();
+  const totalBooked = await getAllBookings();
   const maxRooms = 20;
   const availableRooms = maxRooms - totalBooked;
 
