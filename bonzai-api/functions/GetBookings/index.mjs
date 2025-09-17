@@ -1,28 +1,47 @@
-import { sendResponse } from '../../responses/index.mjs';
-import { client } from '../../services/client.mjs';
-import { ScanCommand } from '@aws-sdk/client-dynamodb';
-import { unmarshall } from '@aws-sdk/util-dynamodb'; // converts dynamo data to js
+import middy from "@middy/core";
+import { sendResponse } from "../../responses/index.mjs";
+import { getAllBookings } from "../../services/bookings.mjs";
+import { errorHandler } from "../../middlewares/errorHandler.mjs";
+// import { client } from "../../services/client.mjs";
+// import { ScanCommand } from "@aws-sdk/client-dynamodb";
+// import { unmarshall } from "@aws-sdk/util-dynamodb"; // converts dynamo data to js
 
-export const handler = async (event) => {
-	try {
-		// a command that scans the entire table -- the client sends it -- returns items (in dynamodb format)
-		const command = new ScanCommand({ TableName: 'bonzai-table' });
-		const result = await client.send(command);
+export const handler = middy(async (event) => {
+  const bookings = await getAllBookings();
 
-		// if no items are found -- sends you a comforting message :---)
-		if (!result.Items || result.Items.length === 0) {
-			return sendResponse(200, {
-				message: `There are no bookings right now. Don't look so sad - I am sure there will be some later... :-)`,
-			});
-		}
+  if (bookings.length === 0) {
+    return sendResponse(200, {
+      success: true,
+      message: "There are no bookings right now. Don’t look so sad – I’m sure there will be some later…",
+      bookings: [],
+    });
+  } else {
+    return sendResponse(200, {
+      success: true,
+      message: `Found ${bookings.length} bookings`,
+      bookings,
+    });
+  }
+}).use(errorHandler);
 
-		// translates/converts every item in the database into a js object,
-		// so they are not formatted in dynamodb style anymore, since they return as that at first up there ^
-		const bookings = result.Items.map((item) => unmarshall(item));
+// try {
+// 	// a command that scans the entire table -- the client sends it -- returns items (in dynamodb format)
+// 	const command = new ScanCommand({ TableName: 'bonzai-table' });
+// 	const result = await client.send(command);
 
-		// if items are found in the table -- returns as OK and shows all the bookings (AKA all the items that we mapped through on row 21)
-		return sendResponse(200, bookings);
-	} catch (error) {
-		return sendResponse(500, { message: error.message });
-	}
-};
+// 	// if no items are found -- sends you a comforting message :---)
+// 	if (!result.Items || result.Items.length === 0) {
+// 		return sendResponse(200, {
+// 			message: `There are no bookings right now. Don't look so sad - I am sure there will be some later... :-)`,
+// 		});
+// 	}
+
+// 	// translates/converts every item in the database into a js object,
+// 	// so they are not formatted in dynamodb style anymore, since they return as that at first up there ^
+// 	const bookings = result.Items.map((item) => unmarshall(item));
+
+// 	// if items are found in the table -- returns as OK and shows all the bookings (AKA all the items that we mapped through on row 21)
+// 	return sendResponse(200, bookings);
+// } catch (error) {
+// 	return sendResponse(500, { message: error.message });
+// }
