@@ -1,44 +1,33 @@
-import { client } from "../../services/client.mjs";
-import { DeleteItemCommand } from "@aws-sdk/client-dynamodb";
 import { sendResponse } from "../../responses/index.mjs";
+import { deleteBooking } from "../../services/bookings.mjs";
 
 export const handler = async (event) => {
   try {
-    const { id } = event.pathParameters || {};
+    console.log("Event:", JSON.stringify(event));
+    const bookingId = event.pathParameters?.id;
 
-    if (!id) {
+    if (!bookingId) {
       return sendResponse(400, { 
-        message: "Missing bookingId in path parameters" 
+        message: "Missing bookingId" 
       });
     }
 
-    const booking = {
-      TableName: "bonzai-table",
-      Key: {
-        pk: { S: `BOOKING`},
-        sk: { S: id }
-      },
-      ReturnValues: "ALL_OLD",
-    };
-
-    const result = await client.send(new DeleteItemCommand(booking));
-    const deletedBooking = result.Attributes;
+    const deletedBooking = await deleteBooking(bookingId);
 
     if (!deletedBooking) {
       return sendResponse(404, { 
-        message: `No booking found with id ${id}` 
+        message: `No booking found with id ${bookingId}` 
       });
     }
-
     return sendResponse(200, { 
       message: "Booking deleted successfully", 
       deletedBooking 
     });
-
   } catch (error) {
-    console.error("Error deleting booking:", error);
+    console.error("Error in handler:", error);
     return sendResponse(500, { 
-      message: "Internal Server Error" 
+      message: "Internal Server Error",
+      error: error.message
     });
   }
 }
