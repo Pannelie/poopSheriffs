@@ -10,7 +10,6 @@ export const getAllBookings = async () => {
     ExpressionAttributeValues: {
       ":pk": "BOOKING",
     },
-    ProjectionExpression: "totalRooms",
   });
 
   try {
