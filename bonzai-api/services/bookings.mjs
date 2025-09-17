@@ -14,7 +14,7 @@ const getTotalBookedRooms = async () => {
 
   try {
     const result = await docClient.send(command);
-    const totalBooked = result.Items.reduce((sum, item) => sum + Number(item.totalRooms.N), 0);
+    const totalBooked = result.Items.reduce((sum, item) => sum + Number(item.totalRooms), 0);
     return totalBooked;
   } catch (error) {
     console.error({ message: `${error.message} from getTotalBookedRooms` });
@@ -24,7 +24,7 @@ const getTotalBookedRooms = async () => {
 
 const getRoomPrice = async (roomType) => {
   const command = new GetCommand({
-    TableName: bonzai - TableAlreadyExistsException,
+    TableName: "bonzai-table",
     Key: { pk: `ROOM#${roomType}`, sk: "INFO" },
     ProjectionExpression: "price",
   });
@@ -40,7 +40,21 @@ const getRoomPrice = async (roomType) => {
 
 export const addBooking = async ({ name, email, rooms, guests, checkIn, checkOut }) => {
   const bookingId = generateId(4);
+  //För varje rum i bokningen så adderas antalet under "amount"
   const newBookingRooms = rooms.reduce((sum, room) => sum + room.amount, 0);
+
+  //Kontrollerar hur många rum som är bokade totalt på hotellet
+  const totalBooked = await getTotalBookedRooms();
+  if (totalBooked + newBookingRooms > 20) {
+    console.error("Cannot book rooms: hotel would exceed max capacity of 20 rooms.");
+    return false;
+  }
+
+  let totalPrice = 0;
+  for (const room of rooms) {
+    const price = await getRoomPrice(room.roomType);
+    totalPrice += price * room.amount;
+  }
 
   const item = {
     pk: "BOOKING",
@@ -51,6 +65,8 @@ export const addBooking = async ({ name, email, rooms, guests, checkIn, checkOut
     email,
     guests,
     rooms, // direkt array med objekt: [{roomType, amount}]
+    totalRooms: newBookingRooms,
+    totalPrice,
     checkIn: new Date(checkIn).toISOString(),
     checkOut: checkOut ? new Date(checkOut).toISOString() : null,
     createdAt: new Date().toISOString(),
@@ -84,7 +100,7 @@ export const addBooking = async ({ name, email, rooms, guests, checkIn, checkOut
 
   try {
     await docClient.send(command);
-    return { bookingId, name, guests, rooms, checkIn, checkOut };
+    return { bookingId, name, guests, rooms, totalRooms: newBookingRooms, totalPrice, checkIn, checkOut };
   } catch (error) {
     console.error(`Error from db: `, error.message);
     return false;
