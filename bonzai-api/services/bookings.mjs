@@ -15,7 +15,7 @@ const getAllBookings = async () => {
 
   try {
     const result = await docClient.send(command);
-    return result;
+    return result.Items || [];
   } catch (error) {
     console.error({ message: `${error.message} from getAllBookings` });
     return 0;
@@ -28,7 +28,8 @@ export const addBooking = async ({ name, email, rooms, guests, checkIn, checkOut
   const newBookingRooms = rooms.reduce((sum, room) => sum + room.amount, 0);
 
   //Kontrollerar hur många rum som är bokade totalt på hotellet
-  const totalBooked = await getAllBookings();
+  const allBookings = await getAllBookings();
+  const totalBooked = allBookings.reduce((sum, item) => sum + Number(item.totalRooms), 0);
   const maxRooms = 20;
   const availableRooms = maxRooms - totalBooked;
 
