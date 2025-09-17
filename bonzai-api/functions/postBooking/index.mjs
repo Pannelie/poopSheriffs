@@ -18,7 +18,7 @@ export const handler = middy(async (event) => {
   } else {
     return sendResponse(400, {
       success: false,
-      message: result.message || "Room could not be booked",
+      message: booking.message || "Room could not be booked",
     });
   }
 })
