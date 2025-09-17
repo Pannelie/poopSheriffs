@@ -47,7 +47,7 @@ export const addBooking = async ({ name, email, rooms, guests, checkIn, checkOut
   const totalBooked = await getTotalBookedRooms();
   if (totalBooked + newBookingRooms > 20) {
     console.error("Cannot book rooms: hotel would exceed max capacity of 20 rooms.");
-    return false;
+    return { success: false, message: "No rooms available: hotel is fully booked" };
   }
 
   let totalPrice = 0;
@@ -103,6 +103,6 @@ export const addBooking = async ({ name, email, rooms, guests, checkIn, checkOut
     return { bookingId, name, guests, rooms, totalRooms: newBookingRooms, totalPrice, checkIn, checkOut };
   } catch (error) {
     console.error(`Error from db: `, error.message);
-    return false;
+    return { success: false, message: `Error saving booking: ${error.message}` };
   }
 };
