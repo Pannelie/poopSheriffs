@@ -1,5 +1,5 @@
 import { docClient } from "./client.mjs";
-import { GetCommand, PutCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
+import { GetCommand, PutCommand, QueryCommand, DeleteCommand } from "@aws-sdk/lib-dynamodb";
 import { generateId } from "../utils/uuid.mjs";
 
 const getTotalBookedRooms = async () => {
@@ -118,3 +118,23 @@ export const addBooking = async ({ name, email, rooms, guests, checkIn, checkOut
     return { success: false, message: `Error saving booking: ${error.message}` };
   }
 };
+
+export const deleteBooking = async (bookingId) => {
+  try {
+    const params = {
+      TableName: "bonzai-table",
+      Key: {
+        pk: "BOOKING",
+        sk: bookingId,
+      },
+      ReturnValues: "ALL_OLD",
+    };
+
+    const command = new DeleteCommand(params);
+    const result = await docClient.send(command);
+    return result.Attributes;
+  } catch (error) {
+    console.error(`Error deleting booking with id ${bookingId}:`, error.message);
+    return { success: false, message: `Error deleting booking: ${error.message}`};
+  }
+}
