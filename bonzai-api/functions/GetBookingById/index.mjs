@@ -1,4 +1,5 @@
 import { sendResponse } from '../../responses/index.mjs';
+import { getBookingById } from '../../services/getBookingById.mjs';
 
 export const handler = async (event) => {
 	try {
@@ -12,7 +13,7 @@ export const handler = async (event) => {
 		}
 
 		// booking is undefined right now, until I get it from the database later
-		const booking = undefined;
+		const booking = await getBookingById(id);
 
 		if (!booking) {
 			return sendResponse(404, {

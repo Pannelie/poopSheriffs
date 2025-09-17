@@ -22,7 +22,7 @@ functions:
                   path: /api/bookings/{id}
                   method: GET
     postBooking:
-        handler: functions/postBooking/index.handler
+        handler: functions/PostBooking/index.handler
         events:
             - httpApi:
                   path: /api/bookings
