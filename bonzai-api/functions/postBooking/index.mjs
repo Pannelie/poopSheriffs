@@ -9,16 +9,16 @@ import { validateBooking } from "../../middlewares/validateBooking.mjs";
 
 export const handler = middy(async (event) => {
   const booking = await addBooking(event.body);
-  if (booking) {
+  if (booking.success) {
     return sendResponse(201, {
       success: true,
       message: "Room successfully booked",
       booking,
     });
   } else {
-    return sendResponse(404, {
+    return sendResponse(400, {
       success: false,
-      message: "Room could not be booked",
+      message: result.message || "Room could not be booked",
     });
   }
 })
