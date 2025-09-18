@@ -25,7 +25,11 @@ export const checkAvailableRooms = (rooms, allBookings, bookingIdToExclude) => {
   const availableRooms = maxRooms - totalBooked;
 
   if (newBookingRooms > availableRooms) {
-    return { success: false, message: `Only ${availableRooms} room(s) available`, availableRooms };
+    return {
+      success: false,
+      message: availableRooms === 0 ? `Sorry for the inconveniance, the hotel is fully booked` : `Only ${availableRooms} room(s) available`,
+      availableRooms,
+    };
   }
   return { success: true, totalRooms: newBookingRooms };
 };
