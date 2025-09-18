@@ -1,0 +1,28 @@
+openapi : 3.0.1
+info:
+    title: Bonzai Booking API
+    version: 1.0.0
+    description: API Documentation for Bonzai Booking API
+    # url fram insomnia her
+
+# ----------------------------- DELETE: DeleteBooking ---------------------------------
+paths:
+    /api/bookings/{id}:
+        delete:
+            tags:
+                - Bookings
+            summary: Delete a booking by ID
+            parameters:
+                - in: path
+                  name: id
+                  required: true
+                  schema:
+                      type: string
+                  description: The ID of the booking to delete
+            responses:
+                '200':
+                    description: Booking deleted successfully
+                '404':
+                    description: Booking not found
+                '500':
+                    description: Internal server error
