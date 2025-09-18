@@ -3,13 +3,8 @@ import { GetCommand, PutCommand, QueryCommand, DeleteCommand, UpdateCommand } fr
 // import { getRoomCapacity, getRoomPrice } from "./room.mjs";
 import { generateId } from "../utils/uuid.mjs";
 import { validateBookingCapacity } from "../utils/booking.mjs";
-import { calculateCheckout } from "../utils/date.mjs";
+import { calculateCheckout, formatDateForResponse } from "../utils/date.mjs";
 import { throwError } from "../utils/throwError.mjs";
-
-const formatDateForResponse = (date) => {
-  if (!date) return null;
-  return new Date(date).toISOString().split("T")[0]; // YYYY-MM-DD now and not YYYY-MM-DD.t000.0.00.000 like before
-};
 
 export const getAllBookings = async () => {
   const command = new QueryCommand({
