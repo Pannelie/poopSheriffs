@@ -14,6 +14,11 @@ import {
 } from '../utils/booking.mjs';
 import { calculateCheckout } from '../utils/date.mjs';
 
+const formatDateForResponse = (date) => {
+	if (!date) return null;
+	return new Date(date).toISOString().split('T')[0]; // YYYY-MM-DD now and not YYYY-MM-DD.t000.0.00.000 like before
+};
+
 export const getAllBookings = async () => {
 	const command = new QueryCommand({
 		TableName: 'bonzai-table',
@@ -25,7 +30,14 @@ export const getAllBookings = async () => {
 
 	try {
 		const result = await docClient.send(command);
-		return result.Items || [];
+		// converts weird date into normal date for bookings
+		const bookings = (result.Items || []).map((b) => ({
+			...b,
+			checkIn: formatDateForResponse(b.checkIn),
+			checkOut: formatDateForResponse(b.checkOut),
+			createdAt: formatDateForResponse(b.createdAt),
+		}));
+		return bookings;
 	} catch (error) {
 		console.error({ message: `${error.message} from getAllBookings` });
 		throw new Error('Could not fetch bookings');
@@ -118,8 +130,8 @@ export const addBooking = async ({
 		nights,
 		totalRooms,
 		totalPrice,
-		checkIn: new Date(checkIn).toISOString(),
-		checkOut, // <-- nu beräknad automatiskt
+		checkIn: new Date(checkIn).toISOString(), // <-- normal dates format
+		checkOut: new Date(checkOut).toISOString(), // <-- calculates automatically
 		createdAt: new Date().toISOString(),
 	};
 
@@ -138,8 +150,8 @@ export const addBooking = async ({
 			rooms,
 			totalRooms,
 			totalPrice,
-			checkIn,
-			checkOut,
+			checkIn: formatDateForResponse(checkIn), // <-- puts normal dates in booking
+			checkOut: formatDateForResponse(checkOut),
 		};
 	} catch (error) {
 		console.error(`Error from db: `, error.message);
@@ -315,7 +327,13 @@ export const updateBooking = async (bookingId, updateData) => {
 
 	try {
 		const result = await docClient.send(updateCommand);
-		return { success: true, booking: result.Attributes };
+		// normal dates response for updateBooking
+		const updated = result.Attributes;
+		updated.checkIn = formatDateForResponse(updated.checkIn);
+		updated.checkOut = formatDateForResponse(updated.checkOut);
+		updated.createdAt = formatDateForResponse(updated.createdAt);
+
+		return { success: true, booking: updated };
 	} catch (error) {
 		return {
 			success: false,
