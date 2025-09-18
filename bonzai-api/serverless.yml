@@ -2,11 +2,11 @@ org: ${file(./config.yml):aws.org}
 service: bonzai-api
 
 provider:
-  name: aws
-  runtime: nodejs20.x
-  region: eu-north-1
-  iam:
-    role: ${file(./config.yml):aws.role}
+    name: aws
+    runtime: nodejs20.x
+    region: eu-north-1
+    iam:
+        role: ${file(./config.yml):aws.role}
 
 functions:
     GetBookings:
@@ -22,7 +22,7 @@ functions:
                   path: /api/bookings/{id}
                   method: GET
     postBooking:
-        handler: functions/PostBooking/index.handler
+        handler: functions/postBooking/index.handler
         events:
             - httpApi:
                   path: /api/bookings
@@ -41,19 +41,19 @@ functions:
                   method: PUT
 
 resources:
-  Resources:
-    BonzaiTable:
-      Type: AWS::DynamoDB::Table
-      Properties:
-        TableName: bonzai-table
-        AttributeDefinitions:
-          - AttributeName: pk
-            AttributeType: S
-          - AttributeName: sk
-            AttributeType: S
-        KeySchema:
-          - AttributeName: pk
-            KeyType: HASH
-          - AttributeName: sk
-            KeyType: RANGE
-        BillingMode: PAY_PER_REQUEST
+    Resources:
+        BonzaiTable:
+            Type: AWS::DynamoDB::Table
+            Properties:
+                TableName: bonzai-table
+                AttributeDefinitions:
+                    - AttributeName: pk
+                      AttributeType: S
+                    - AttributeName: sk
+                      AttributeType: S
+                KeySchema:
+                    - AttributeName: pk
+                      KeyType: HASH
+                    - AttributeName: sk
+                      KeyType: RANGE
+                BillingMode: PAY_PER_REQUEST
