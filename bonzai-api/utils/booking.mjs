@@ -44,3 +44,16 @@ export const validateBookingCapacity = async ({ rooms, guests, nights, bookingId
 
   return { totalPrice, totalCapacity, totalRooms: roomCheck.totalRooms };
 };
+
+const calculateTotalRoomsFromBookings = (bookings) => {
+  return bookings.reduce((sum, b) => sum + (b.totalRooms ?? 0), 0);
+};
+
+export const generateBookingSummaryMessage = (bookings) => {
+  const totalRooms = calculateTotalRoomsFromBookings(bookings);
+  const totalBookings = bookings.length;
+  const roomWord = totalRooms === 1 ? "room" : "rooms";
+  const bookingWord = totalBookings === 1 ? "booking" : "bookings";
+
+  return `A total of ${totalRooms} ${roomWord} booked through ${totalBookings} ${bookingWord}.`;
+};
