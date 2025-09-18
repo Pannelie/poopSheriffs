@@ -132,34 +132,134 @@ paths:
             requestBody:
                 required: true
                 content:
-                    type: object
-                    properties:
-                        guestName:
-                            type: string
-                            example: Anna Andersson
-                        roomType:
-                            type: string
-                            enum: [single, double, suite]
-                            example: double
-                        numberOfGuests:
-                            type: integer
-                            example: 2
-                        checkIn:
-                            type: string
-                            format: date
-                            example: 2025-10-01
-                        checkOut:
-                            type: string
-                            format: date
-                            example: 2025-10-05
-                    required:
-                        - guestName
-                        - roomType
-                        - numberOfGuests
-                        - checkIn
-                        - checkOut
-            responses:
-                
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                name:
+                                    type: string
+                                    minLength: 3
+                                    maxLength: 30
+                                    example: Anna Andersson
+                                email:
+                                    type: string
+                                    format: email
+                                    example: anna@example.com
+                                guests:
+                                    type: integer
+                                    minimum: 1
+                                    example: 2
+                                rooms:
+                                    type: array
+                                    minItems: 1
+                                    items:
+                                        type: object
+                                        required:
+                                            - roomType
+                                            - amount
+                                        properties:
+                                            roomType:
+                                                type: string
+                                                enum: [single, double, suite]
+                                                example: double
+                                            amount:
+                                                type: integer
+                                                minimum: 1
+                                                example: 1
+                                checkIn:
+                                    type: string
+                                    format: date
+                                    example: 2025-10-01
+                                nights:
+                                    type: integer
+                                    minimum: 1
+                                    example: 2
+                                checkOut:
+                                    type: string
+                                    format: date
+                                    example: 2025-10-05
+                            required:
+                                - name
+                                - email
+                                - guests
+                                - rooms
+                                - checkIn
+                                - nights
+                    responses:
+                        '201':
+                            description: Bokningen har skapats
+                            content:
+                                application/json:
+                                    schema:
+                                        type: object
+                                        properties:
+                                            message:
+                                                type: string
+                                                example: Room successfully booked
+                                            booking:
+                                                type: object
+                                                properties:
+                                                    success:
+                                                        type: boolean
+                                                        example: true
+                                                    bookingId:
+                                                        type: string
+                                                        example: "3530"
+                                                    name:
+                                                        type: string
+                                                        example: Anna
+                                                    guests:
+                                                        type: integer
+                                                        example: 2
+                                                    rooms:
+                                                        type: array
+                                                        items:
+                                                            type: object
+                                                            properties:
+                                                                roomType:
+                                                                    type: string
+                                                                    enum: [single, double, suite]
+                                                                    example: double
+                                                                amount:
+                                                                    type: integer
+                                                                    example: 1
+                                                    totalRooms:
+                                                        type: integer
+                                                        example: 1
+                                                    totalPrice:
+                                                        type: number
+                                                        example: 1000
+                                                    checkIn:
+                                                        type: string
+                                                        format: date
+                                                        example: 2025-10-01
+                                                    nights:
+                                                        type: integer
+                                                        example: 1
+                                                    checkOut:
+                                                        type: string
+                                                        format: date-time
+                                                        example: 2025-10-02
+                        '400':
+                            description: Fel i bokningsdata
+                            content:
+                                application/json:
+                                    schema:
+                                        type: object
+                                        properties:
+                                            message:
+                                                type: string
+                                                example: '"name" is required'
+                        '500':
+                            description: Internt serverfel
+                            content:
+                                application/json:
+                                    schema:
+                                        type: object
+                                        properties:
+                                            message:
+                                                type: string
+                                                example: Internal server error
 
 
     # ----------------------------- DELETE: DeleteBooking ---------------------------------
