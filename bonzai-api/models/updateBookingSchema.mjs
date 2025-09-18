@@ -13,5 +13,5 @@ export const bookingUpdateSchema = Joi.object({
   checkIn: Joi.date().greater("now"),
   nights: Joi.number().min(1),
   checkOut: Joi.date().iso(),
-  totalPrice: Joi.number().min(0)
-});
+  totalPrice: Joi.number().min(0),
+}).min(1);
