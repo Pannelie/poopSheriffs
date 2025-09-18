@@ -27,7 +27,7 @@ export const checkAvailableRooms = (rooms, allBookings, bookingIdToExclude) => {
   if (newBookingRooms > availableRooms) {
     return {
       success: false,
-      message: availableRooms === 0 ? `Sorry for the inconveniance, the hotel is fully booked` : `Only ${availableRooms} room(s) available`,
+      message: availableRooms <= 0 ? `No rooms available: hotel is fully booked` : `Only ${availableRooms} room(s) available`,
       availableRooms,
     };
   }
