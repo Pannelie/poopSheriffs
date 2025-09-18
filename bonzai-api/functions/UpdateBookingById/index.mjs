@@ -3,8 +3,14 @@ import httpJsonBodyParser from "@middy/http-json-body-parser";
 import { sendResponse } from "../../responses/index.mjs";
 import { updateBooking } from "../../services/bookings.mjs";
 import { errorHandler } from "../../middlewares/errorHandler.mjs";
+import { bookingUpdateSchema } from "../../models/updateBookingSchema.mjs";
 
 export const handler = middy(async (event) => {
+  const { error, value } = bookingUpdateSchema.validate(event.body);
+  if (error) {
+    return sendResponse(400, { message: error.details[0].message });
+  }
+
   const bookingId = event.pathParameters.id;
   const result = await updateBooking(bookingId, event.body); 
 
