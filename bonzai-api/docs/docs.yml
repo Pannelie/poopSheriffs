@@ -122,6 +122,45 @@ paths:
                                     message:
                                         type: string
                                         example: 'Something went EXTREMELY wrong here when you get an error 500!! -- no bookings, no nothing.'
+    # -------------------------- POST: PostBooking -------------------------------
+    /api/bookings/:
+        post:
+            tags:
+                - Bookings
+            summary: Skapa en ny bokning
+            description: Tar emot bokningsinformation och sparar i Dynamodb
+            requestBody:
+                required: true
+                content:
+                    type: object
+                    properties:
+                        guestName:
+                            type: string
+                            example: Anna Andersson
+                        roomType:
+                            type: string
+                            enum: [single, double, suite]
+                            example: double
+                        numberOfGuests:
+                            type: integer
+                            example: 2
+                        checkIn:
+                            type: string
+                            format: date
+                            example: 2025-10-01
+                        checkOut:
+                            type: string
+                            format: date
+                            example: 2025-10-05
+                    required:
+                        - guestName
+                        - roomType
+                        - numberOfGuests
+                        - checkIn
+                        - checkOut
+            responses:
+                
+
 
     # ----------------------------- DELETE: DeleteBooking ---------------------------------
     /api/bookings/{id}:
