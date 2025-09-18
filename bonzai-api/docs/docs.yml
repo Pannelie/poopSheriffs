@@ -261,6 +261,59 @@ paths:
                                                 type: string
                                                 example: Internal server error
 
+# ----------------------------- PUT: UpdateBooking ---------------------------------
+    /api/bookings/{id}:
+        put: 
+            tags:
+                - API bookings
+            summary: Update a booking by ID
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+                  description: The ID of the booking to update
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/Booking'
+            responses:
+                '200':
+                    description: Booking updated successfully
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    message:
+                                        type: string
+                                        example: Booking updated successfully
+                                    updatedBooking:
+                                        $ref: '#/components/schemas/Booking'
+                '400':
+                    description: Invalid input
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    message:
+                                        type: string
+                                        example: Invalid input data
+                '500':
+                    description: Internal server error
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    message:
+                                        type: string
+                                        example: Internal server error
+
 
     # ----------------------------- DELETE: DeleteBooking ---------------------------------
     /api/bookings/{id}:
@@ -322,7 +375,7 @@ paths:
                                         type: string
                                         example: Error details
 
-# ----------------------------- MODELLER ---------------------------------
+# ----------------------------- MODELS ---------------------------------
 components:
     schemas:
         Booking:
@@ -355,6 +408,51 @@ components:
                     items:
                         type: object
                         required: [roomType, amount]
+                        properties:
+                            roomType:
+                                type: string
+                                enum: [single, double, suite]
+                                example: "double"
+                            amount:
+                                type: integer
+                                minimum: 1
+                                example: 1
+                checkIn:
+                    type: string
+                    format: date
+                    example: "2023-10-01"
+                checkOut:
+                    type: string
+                    format: date
+                    example: "2023-10-05"
+                totalPrice:
+                    type: number
+                    minimum: 1
+                    example: 1000
+components:
+    schemas:
+        UpdateBooking:
+            type: object
+            properties:
+                name:
+                    type: string
+                    minLength: 3
+                    maxLength: 30
+                    example: Astreaus Dawn
+                email:
+                    type: string
+                    format: email
+                    example: "astreaus.dawn@gmail.com"
+                guests:
+                    type: integer
+                    minimum: 1
+                    example: 2
+                rooms:
+                    type: array
+                    minItems: 1
+                    items:
+                        type: object
+                        enum: [roomType, amount]
                         properties:
                             roomType:
                                 type: string

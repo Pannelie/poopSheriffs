@@ -15,7 +15,7 @@ export const handler = middy(async (event) => {
   const result = await updateBooking(bookingId, event.body); 
 
   if (!result) {
-    return sendResponse(500, { message: "Failed to update booking" });
+    return sendResponse(500, { message: "Internal server error" });
   }
 
   return sendResponse(200, { message: "Booking updated successfully!", booking: result });
