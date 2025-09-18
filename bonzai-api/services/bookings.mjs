@@ -35,9 +35,8 @@ export const addBooking = async ({ name, email, rooms, guests, checkIn, nights }
     checkOut = checkOut.toISOString();
   }
   if (nights && isNaN(Number(nights))) {
-  return { success: false, message: "Nights must be a number" };
-}
-
+    return { success: false, message: "Nights must be a number" };
+  }
 
   //Kontrollerar hur många rum som är bokade totalt på hotellet
   const allBookings = await getAllBookings();
@@ -68,17 +67,8 @@ export const addBooking = async ({ name, email, rooms, guests, checkIn, nights }
     const price = await getRoomPrice(room.roomType);
     const maxGuestsPerRoom = await getRoomCapacity(roomType);
 
-    totalPrice += (price * amount) * nights ;
+    totalPrice += price * amount * nights;
     totalCapacity += maxGuestsPerRoom * amount;
-
-    // Kontrollera att gäster inte bryter mot max per rumstyp
-    if (guests / newBookingRooms > maxGuestsPerRoom) {
-      const roomText = newBookingRooms > 1 ? "rooms" : "room";
-      return {
-        success: false,
-        message: `Too many guests for your ${roomText}. Please choose another alternative`,
-      };
-    }
   }
   if (guests > totalCapacity) {
     return { success: false, message: "Too many guests for selected rooms" };
@@ -93,6 +83,7 @@ export const addBooking = async ({ name, email, rooms, guests, checkIn, nights }
     email,
     guests,
     rooms,
+    nights,
     totalRooms: newBookingRooms,
     totalPrice,
     checkIn: new Date(checkIn).toISOString(),
@@ -113,7 +104,6 @@ export const addBooking = async ({ name, email, rooms, guests, checkIn, nights }
     return { success: false, message: `Error saving booking: ${error.message}` };
   }
 };
-
 
 //==PUT UPPDATERA BOKNING
 export const updateBooking = async (bookingId, updateData) => {
@@ -155,7 +145,7 @@ export const updateBooking = async (bookingId, updateData) => {
       updateData.checkOut = checkOut.toISOString();
     }
   }
-//Beräkna totalPrice
+  //Beräkna totalPrice
   const rooms = updateData.rooms || existingBooking.rooms;
   const nights = Number(updateData.nights || existingBooking.nights);
 
@@ -164,13 +154,11 @@ export const updateBooking = async (bookingId, updateData) => {
   for (const room of rooms) {
     const { roomType, amount } = room;
     const price = await getRoomPrice(roomType);
-    
-    totalPrice += (price * amount) * nights;
-    
+
+    totalPrice += price * amount * nights;
   }
 
   updateData.totalPrice = totalPrice;
-  
 
   // Bygg UpdateExpression dynamiskt
   let updateExpression = "set";
@@ -208,7 +196,6 @@ export const updateBooking = async (bookingId, updateData) => {
   }
 };
 
-
 export const deleteBooking = async (bookingId) => {
   try {
     const params = {
@@ -225,6 +212,6 @@ export const deleteBooking = async (bookingId) => {
     return result.Attributes;
   } catch (error) {
     console.error(`Error deleting booking with id ${bookingId}:`, error.message);
-    return { success: false, message: `Error deleting booking: ${error.message}`};
+    return { success: false, message: `Error deleting booking: ${error.message}` };
   }
-}
+};
