@@ -2,6 +2,7 @@ import middy from "@middy/core";
 import { sendResponse } from "../../responses/index.mjs";
 import { getAllBookings } from "../../services/bookings.mjs";
 import { errorHandler } from "../../middlewares/errorHandler.mjs";
+import { generateBookingSummaryMessage } from "../../utils/booking.mjs";
 // import { client } from "../../services/client.mjs";
 // import { ScanCommand } from "@aws-sdk/client-dynamodb";
 // import { unmarshall } from "@aws-sdk/util-dynamodb"; // converts dynamo data to js
@@ -15,9 +16,11 @@ export const handler = middy(async (event) => {
       message: "There are no bookings right now. Don’t look so sad – I’m sure there will be some later…",
     });
   }
+
+  const message = generateBookingSummaryMessage(bookings);
   return sendResponse(200, {
     success: true,
-    message: `Found ${bookings.length} bookings`,
+    message,
     bookings,
   });
 }).use(errorHandler());
