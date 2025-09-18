@@ -1,0 +1,239 @@
+# JESPER SIN VIDEO PÅ SWAGGER
+# https://funet.sharepoint.com/sites/FrontendutvecklareYH-Fe24Distans/_layouts/15/stream.aspx?id=%2Fsites%2FFrontendutvecklareYH%2DFe24Distans%2FDelade%20dokument%2FInspelningar%2FF%C3%B6rel%C3%A4sning%20FE24%20Distans%2D20250527%5F090059%2DM%C3%B6tesinspelning%2Emp4&nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJTdHJlYW1XZWJBcHAiLCJyZWZlcnJhbFZpZXciOiJTaGFyZURpYWxvZy1MaW5rIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXcifX0&ga=1&referrer=StreamWebApp%2EWeb&referrerScenario=AddressBarCopied%2Eview%2Eaf093ac1%2De59e%2D4c1f%2Db31a%2De3849899d6d3
+
+# SWAGGER WEBPAGE: http://localhost:3000/api/docs/#/API%20bookings/get_api_bookings
+# npm run dev obvs first
+
+openapi: 3.0.1
+info:
+    title: Bonzai Booking API
+    version: 1.0.0
+    description: API Documentation for Bonzai Booking API
+    # url fra insomnia her
+paths:
+    # -------------------------- GET: GetBookings -------------------------------
+    /api/bookings:
+        get:
+            tags:
+                - API bookings
+            summary: Get all bookings
+            responses:
+                '200':
+                    description: Successful responses
+                    content:
+                        application/json:
+                            schema:
+                                oneOf:
+                                    # successful, but when there are no bookings yet
+                                    - type: object
+                                      properties:
+                                          message:
+                                              type: string
+                                              example: 'There are no bookings right now. Do not look so sad - I am sure there will be some later... :-)'
+                                    # successful, but when there are bookings
+                                    - type: array
+                                      items:
+                                          example:
+                                              bookingId: '12c5'
+                                              checkIn: '2025-10-01T00:00:00.000Z'
+                                              checkOut: '2025-10-05T00:00:00.000Z'
+                                              guests: 1
+                                              rooms:
+                                                  - roomType: 'suite'
+                                                    amount: 1
+                                              createdAt: '2025-09-17T14:54:25.758Z'
+                                              itemType: 'booking'
+                                              pk: 'BOOKING'
+                                              sk: '12c5'
+                                              email: 'UASvamp@svampmail.se'
+                                              name: 'Ulf-Are Svampsson'
+                '500':
+                    description: Unsuccessful response - server error
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    message:
+                                        type: string
+                                        # CHECK WHAT MSG 500 ACTUALLY GIVES
+                                        example: 'Internal server error (at least that is what I think it says I need to check)'
+
+    # -------------------------- GET: GetBookingById -------------------------------
+    /api/bookings/{id}:
+        get:
+            tags:
+                - API bookings
+            description: Fetch a specific booking with ID parameter
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: Booking found
+                    content:
+                        application/json:
+                            schema:
+                                example:
+                                    bookingId: '12c5'
+                                    checkIn: '2025-10-01T00:00:00.000Z'
+                                    checkOut: '2025-10-05T00:00:00.000Z'
+                                    guests: 1
+                                    rooms:
+                                        - roomType: 'suite'
+                                          amount: 1
+                                    createdAt: '2025-09-17T14:54:25.758Z'
+                                    itemType: 'booking'
+                                    pk: 'BOOKING'
+                                    sk: '12c5'
+                                    email: 'UASvamp@svampmail.se'
+                                    name: 'Ulf-Are Svampsson'
+
+                '400':
+                    description: Wrong ID input
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    message:
+                                        type: string
+                                        example: 'This ID does not exist. Please put on glasses and take a closer look! 8-)'
+                '404':
+                    description: Cannot find booking by this ID
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    message:
+                                        type: string
+                                        example: 'There is no booking with the id of 5487 here...? :---)'
+                '500':
+                    description: Internal server error
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    message:
+                                        type: string
+                                        example: 'Something went EXTREMELY wrong here when you get an error 500!! -- no bookings, no nothing.'
+
+    # ----------------------------- DELETE: DeleteBooking ---------------------------------
+    /api/bookings/{id}:
+        delete:
+            tags:
+                - Bookings
+            summary: Delete a booking by ID
+            parameters:
+                - in: path
+                  name: id
+                  required: true
+                  schema:
+                      type: string
+                  description: The ID of the booking to delete
+            responses:
+                '200':
+                    description: Booking deleted successfully
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    message:
+                                        type: string
+                                        example: Booking deleted successfully
+                                    deletedBooking:
+                                        $ref: '#/components/schemas/Booking'
+                '400':
+                    description: Invalid ID supplied
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    message:
+                                        type: string
+                                        example: Missing bookingId
+                '404':
+                    description: Booking not found
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    message:
+                                        type: string
+                                        example: No booking found with id 1234
+                '500':
+                    description: Internal server error
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    message:
+                                        type: string
+                                        example: Internal server error
+                                    error:
+                                        type: string
+                                        example: Error details
+
+# ----------------------------- MODELLER ---------------------------------
+components:
+    schemas:
+        Booking:
+            type: object
+            required:
+                - name
+                - email
+                - guests
+                - rooms
+                - checkIn
+                - checkOut
+                - totalPrice
+            properties:
+                name:
+                    type: string
+                    minLength: 3
+                    maxLength: 30
+                    example: Astreaus Dawn
+                email:
+                    type: string
+                    format: email
+                    example: "astreaus.dawn@gmail.com"
+                guests:
+                    type: integer
+                    minimum: 1
+                    example: 2
+                rooms:
+                    type: array
+                    minItems: 1
+                    items:
+                        type: object
+                        required: [roomType, amount]
+                        properties:
+                            roomType:
+                                type: string
+                                enum: [single, double, suite]
+                                example: "double"
+                            amount:
+                                type: integer
+                                minimum: 1
+                                example: 1
+                checkIn:
+                    type: string
+                    format: date
+                    example: "2023-10-01"
+                checkOut:
+                    type: string
+                    format: date
+                    example: "2023-10-05"
+                totalPrice:
+                    type: number
+                    minimum: 1
+                    example: 1000
