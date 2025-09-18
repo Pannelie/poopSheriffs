@@ -9,18 +9,17 @@ import { errorHandler } from "../../middlewares/errorHandler.mjs";
 export const handler = middy(async (event) => {
   const bookings = await getAllBookings();
 
-  if (bookings.length === 0) {
+  if (!bookings || bookings.length === 0) {
     return sendResponse(200, {
       success: true,
       message: "There are no bookings right now. Don’t look so sad – I’m sure there will be some later…",
     });
-  } else {
-    return sendResponse(200, {
-      success: true,
-      message: `Found ${bookings.length} bookings`,
-      bookings,
-    });
   }
+  return sendResponse(200, {
+    success: true,
+    message: `Found ${bookings.length} bookings`,
+    bookings,
+  });
 }).use(errorHandler());
 
 // try {
