@@ -1,5 +1,6 @@
 import { getBookingById } from "../../services/bookings.mjs";
 import { sendResponse } from "../../responses/index.mjs";
+import { formatBookingResponse } from "../../responses/index.mjs";
 
 export const handler = async (event) => {
   try {
