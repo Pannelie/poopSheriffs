@@ -2,6 +2,7 @@ import { sendResponse } from "../responses/index.mjs";
 
 export const errorHandler = () => ({
   onError: (handler) => {
-    handler.response = sendResponse(404, { message: handler.error.message });
+    const statusCode = handler.error.statusCode || 500;
+    handler.response = sendResponse(statusCode, { message: handler.error.message || "Something went wrong" });
   },
 });

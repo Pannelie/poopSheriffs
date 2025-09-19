@@ -2,6 +2,7 @@ import middy from "@middy/core";
 import { sendResponse } from "../../responses/index.mjs";
 import { getAllBookings } from "../../services/bookings.mjs";
 import { errorHandler } from "../../middlewares/errorHandler.mjs";
+import { generateBookingSummaryMessage } from "../../utils/booking.mjs";
 // import { client } from "../../services/client.mjs";
 // import { ScanCommand } from "@aws-sdk/client-dynamodb";
 // import { unmarshall } from "@aws-sdk/util-dynamodb"; // converts dynamo data to js
@@ -9,18 +10,19 @@ import { errorHandler } from "../../middlewares/errorHandler.mjs";
 export const handler = middy(async (event) => {
   const bookings = await getAllBookings();
 
-  if (bookings.length === 0) {
+  if (!bookings || bookings.length === 0) {
     return sendResponse(200, {
       success: true,
       message: "There are no bookings right now. Don’t look so sad – I’m sure there will be some later…",
     });
-  } else {
-    return sendResponse(200, {
-      success: true,
-      message: `Found ${bookings.length} bookings`,
-      bookings,
-    });
   }
+
+  const message = generateBookingSummaryMessage(bookings);
+  return sendResponse(200, {
+    success: true,
+    message,
+    bookings,
+  });
 }).use(errorHandler());
 
 // try {
