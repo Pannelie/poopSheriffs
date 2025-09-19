@@ -1,7 +1,6 @@
 import middy from "@middy/core";
 import httpJsonBodyParser from "@middy/http-json-body-parser";
 import { formatBookingResponse, sendResponse } from "../../responses/index.mjs";
-import { sendResponse } from "../../responses/index.mjs";
 import { throwError } from "../../utils/throwError.mjs";
 import { errorHandler } from "../../middlewares/errorHandler.mjs";
 import { validateBooking } from "../../middlewares/validateBooking.mjs";
