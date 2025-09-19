@@ -1,4 +1,5 @@
 import { bookingSchema } from "../models/bookingSchema.mjs";
+import { throwError } from "../utils/throwError.mjs";
 
 export const validateBooking = () => ({
   before: (handler) => {
@@ -6,7 +7,7 @@ export const validateBooking = () => ({
     console.log("Error i middleware:", error);
     console.log("Error i middleware:", value);
     if (error) {
-      throw new Error(error.details[0].message);
+      return throwError(error.message, 400);
     }
   },
 });
