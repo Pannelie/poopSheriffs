@@ -1,10 +1,8 @@
 import { docClient } from "./client.mjs";
 import { GetCommand, PutCommand, QueryCommand, DeleteCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
-// import { getRoomCapacity, getRoomPrice } from "./room.mjs";
 import { generateId } from "../utils/uuid.mjs";
 import { validateBookingCapacity } from "../utils/booking.mjs";
 import { calculateCheckout, formatDateForResponse } from "../utils/date.mjs";
-// GET BOOKING BY ID
 import { client } from "./client.mjs";
 import { GetItemCommand } from "@aws-sdk/client-dynamodb";
 import { unmarshall } from "@aws-sdk/util-dynamodb";
@@ -39,7 +37,7 @@ export const addBooking = async ({ name, email, rooms, guests, checkIn, nights }
     return { success: false, message: "Nights must be a number" };
   }
 
-  const { totalPrice, totalCapacity, totalRooms } = await validateBookingCapacity({ rooms, guests, nights });
+  const { totalPrice, totalRooms } = await validateBookingCapacity({ rooms, guests, nights });
   const bookingId = generateId(4);
   const checkOut = calculateCheckout(checkIn, nights);
 
@@ -55,8 +53,8 @@ export const addBooking = async ({ name, email, rooms, guests, checkIn, nights }
     nights,
     totalRooms,
     totalPrice,
-    checkIn: new Date(checkIn).toISOString(), // <-- normal dates format
-    checkOut: new Date(checkOut).toISOString(), // <-- calculates automatically
+    checkIn: new Date(checkIn).toISOString(),
+    checkOut: new Date(checkOut).toISOString(),
     createdAt: new Date().toISOString(),
   };
 
@@ -92,7 +90,6 @@ export const getBookingById = async (id) => {
   return unmarshall(result.Item);
 };
 
-//==PUT UPPDATERA BOKNING
 export const updateBooking = async (bookingId, updateData) => {
   // Hämta befintlig bokning först
   const getCommand = new GetCommand({
@@ -146,7 +143,6 @@ export const updateBooking = async (bookingId, updateData) => {
     ExpressionAttributeValues[attrValue] = updatePayload[key];
   });
 
-  // Ta bort sista kommat
   updateExpression = updateExpression.slice(0, -1);
 
   const updateCommand = new UpdateCommand({
