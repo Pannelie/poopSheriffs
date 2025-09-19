@@ -10,6 +10,10 @@ info:
     version: 1.0.0
     description: API Documentation for Bonzai Booking API
     # url fra insomnia her
+servers:
+  - url: https://mor2xg7702.execute-api.eu-north-1.amazonaws.com
+    description: Grund-URL
+
 paths:
     # -------------------------- GET: GetBookings -------------------------------
     /api/bookings:
@@ -386,8 +390,7 @@ components:
                 - guests
                 - rooms
                 - checkIn
-                - checkOut
-                - totalPrice
+                - nights
             properties:
                 name:
                     type: string
@@ -417,6 +420,10 @@ components:
                                 type: integer
                                 minimum: 1
                                 example: 1
+                nights:
+                    type: integer
+                    minimum: 1
+                    example: 2                                
                 checkIn:
                     type: string
                     format: date
@@ -429,10 +436,9 @@ components:
                     type: number
                     minimum: 1
                     example: 1000
-components:
-    schemas:
         UpdateBooking:
             type: object
+            minproperties: 1
             properties:
                 name:
                     type: string
@@ -474,3 +480,60 @@ components:
                     type: number
                     minimum: 1
                     example: 1000
+        BookingResponse:
+            type: object
+            properties:
+                bookingId:
+                    type: string
+                    example: "eb88"
+                name:
+                    type: string
+                    example: Anna
+                email:
+                    type: string
+                    format: email
+                    example: anna@example.com
+                guests:
+                    type: integet
+                    example: 1
+                rooms:
+                          type: array
+                items:
+                    type: object
+                    properties:
+                        roomType:
+                            type: string
+                            example: "single"
+                        amount:
+                            type: integer
+                            example: 1
+                checkIn:
+                    type: string
+                    format: date-time
+                    example: "2025-10-01T00:00:00.000Z"
+                checkOut:
+                    type: string
+                    format: date-time
+                    example: "2025-10-02T00:00:00.000Z"
+                nights:
+                    type: integer
+                    example: 1
+                totalPrice:
+                    type: number
+                    example: 500
+                totalRooms:
+                    type: integer
+                    example: 1
+                createdAt:
+                    type: string
+                    format: date-time
+                    example: "2025-09-19T10:18:23.796Z"
+                itemType:
+                    type: string
+                    example: "booking"
+                pk:
+                    type: string
+                    example: "BOOKING"
+                sk:
+                    type: string
+                    example: "eb88"
