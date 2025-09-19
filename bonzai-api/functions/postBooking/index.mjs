@@ -1,6 +1,6 @@
 import middy from "@middy/core";
 import httpJsonBodyParser from "@middy/http-json-body-parser";
-import { sendResponse } from "../../responses/index.mjs";
+import { formatBookingResponse, sendResponse } from "../../responses/index.mjs";
 import { errorHandler } from "../../middlewares/errorHandler.mjs";
 import { addBooking } from "../../services/bookings.mjs";
 import { validateBooking } from "../../middlewares/validateBooking.mjs";
@@ -13,7 +13,7 @@ export const handler = middy(async (event) => {
     return sendResponse(201, {
       success: true,
       message: "Room successfully booked",
-      booking,
+      booking: formatBookingResponse(booking),
     });
   } else {
     return sendResponse(400, {
