@@ -1,3 +1,5 @@
+import { formatDateForResponse } from "../utils/date.mjs";
+
 export const sendResponse = (code, data) => {
   return {
     statusCode: code,
@@ -16,7 +18,7 @@ export const formatBookingResponse = (item) => ({
   rooms: item.rooms,
   totalRooms: item.totalRooms,
   totalPrice: item.totalPrice,
-  checkIn: item.checkIn,
-  checkOut: item.checkOut,
+  checkIn: formatDateForResponse(item.checkIn),
+  checkOut: formatDateForResponse(item.checkOut),
   nights: item.nights,
 });
