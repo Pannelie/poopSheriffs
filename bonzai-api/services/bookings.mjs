@@ -4,6 +4,10 @@ import { GetCommand, PutCommand, QueryCommand, DeleteCommand, UpdateCommand } fr
 import { generateId } from "../utils/uuid.mjs";
 import { validateBookingCapacity } from "../utils/booking.mjs";
 import { calculateCheckout, formatDateForResponse } from "../utils/date.mjs";
+// GET BOOKING BY ID
+import { client } from "./client.mjs";
+import { GetItemCommand } from "@aws-sdk/client-dynamodb";
+import { unmarshall } from "@aws-sdk/util-dynamodb";
 
 export const getAllBookings = async () => {
   const command = new QueryCommand({
@@ -72,11 +76,6 @@ export const addBooking = async ({ name, email, rooms, guests, checkIn, nights }
     };
   }
 };
-
-// GET BOOKING BY ID
-import { client } from "./client.mjs";
-import { GetItemCommand } from "@aws-sdk/client-dynamodb";
-import { unmarshall } from "@aws-sdk/util-dynamodb";
 
 export const getBookingById = async (id) => {
   const command = new GetItemCommand({
