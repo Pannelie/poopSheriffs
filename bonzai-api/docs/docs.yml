@@ -37,20 +37,7 @@ paths:
                                     # successful, but when there are bookings
                                     - type: array
                                       items:
-                                          example:
-                                              bookingId: '12c5'
-                                              checkIn: '2025-10-01T00:00:00.000Z'
-                                              checkOut: '2025-10-05T00:00:00.000Z'
-                                              guests: 1
-                                              rooms:
-                                                  - roomType: 'suite'
-                                                    amount: 1
-                                              createdAt: '2025-09-17T14:54:25.758Z'
-                                              itemType: 'booking'
-                                              pk: 'BOOKING'
-                                              sk: '12c5'
-                                              email: 'UASvamp@svampmail.se'
-                                              name: 'Ulf-Are Svampsson'
+                                          $ref: '#/components/schemas/BookingResponse'
                 '500':
                     description: Unsuccessful response - server error
                     content:
@@ -75,27 +62,14 @@ paths:
                   required: true
                   schema:
                       type: string
+                  description: The ID of the booking
             responses:
                 '200':
-                    description: Booking found
+                    description: Booking found successfully
                     content:
                         application/json:
                             schema:
-                                example:
-                                    bookingId: '12c5'
-                                    checkIn: '2025-10-01T00:00:00.000Z'
-                                    checkOut: '2025-10-05T00:00:00.000Z'
-                                    guests: 1
-                                    rooms:
-                                        - roomType: 'suite'
-                                          amount: 1
-                                    createdAt: '2025-09-17T14:54:25.758Z'
-                                    itemType: 'booking'
-                                    pk: 'BOOKING'
-                                    sk: '12c5'
-                                    email: 'UASvamp@svampmail.se'
-                                    name: 'Ulf-Are Svampsson'
-
+                                $ref: '#/components/schemas/BookingResponse'
                 '400':
                     description: Wrong ID input
                     content:
@@ -113,6 +87,9 @@ paths:
                             schema:
                                 type: object
                                 properties:
+                                    success:
+                                        type: boolean
+                                        example: false
                                     message:
                                         type: string
                                         example: 'There is no booking with the id of 5487 here...? :---)'
@@ -138,112 +115,14 @@ paths:
                 content:
                     application/json:
                         schema:
-                            type: object
-                            properties:
-                                name:
-                                    type: string
-                                    minLength: 3
-                                    maxLength: 30
-                                    example: Anna Andersson
-                                email:
-                                    type: string
-                                    format: email
-                                    example: anna@example.com
-                                guests:
-                                    type: integer
-                                    minimum: 1
-                                    example: 2
-                                rooms:
-                                    type: array
-                                    minItems: 1
-                                    items:
-                                        type: object
-                                        required:
-                                            - roomType
-                                            - amount
-                                        properties:
-                                            roomType:
-                                                type: string
-                                                enum: [single, double, suite]
-                                                example: double
-                                            amount:
-                                                type: integer
-                                                minimum: 1
-                                                example: 1
-                                checkIn:
-                                    type: string
-                                    format: date
-                                    example: 2025-10-01
-                                nights:
-                                    type: integer
-                                    minimum: 1
-                                    example: 2
-                                checkOut:
-                                    type: string
-                                    format: date
-                                    example: 2025-10-05
-                            required:
-                                - name
-                                - email
-                                - guests
-                                - rooms
-                                - checkIn
-                                - nights
+                             $ref: '#/components/schemas/Booking'
                     responses:
                         '201':
                             description: Bokningen har skapats
                             content:
                                 application/json:
                                     schema:
-                                        type: object
-                                        properties:
-                                            message:
-                                                type: string
-                                                example: Room successfully booked
-                                            booking:
-                                                type: object
-                                                properties:
-                                                    success:
-                                                        type: boolean
-                                                        example: true
-                                                    bookingId:
-                                                        type: string
-                                                        example: "3530"
-                                                    name:
-                                                        type: string
-                                                        example: Anna
-                                                    guests:
-                                                        type: integer
-                                                        example: 2
-                                                    rooms:
-                                                        type: array
-                                                        items:
-                                                            type: object
-                                                            properties:
-                                                                roomType:
-                                                                    type: string
-                                                                    enum: [single, double, suite]
-                                                                    example: double
-                                                                amount:
-                                                                    type: integer
-                                                                    example: 1
-                                                    totalRooms:
-                                                        type: integer
-                                                        example: 1
-                                                    totalPrice:
-                                                        type: number
-                                                        example: 1000
-                                                    checkIn:
-                                                        type: string
-                                                        format: date
-                                                        example: 2025-10-01
-                                                    nights:
-                                                        type: integer
-                                                        example: 1
-                                                    checkOut:
-                                                        type: string
-                                                        format: date-time
-                                                        example: 2025-10-02
+                                        $ref: '#/components/schemas/BookingResponse'
                         '400':
                             description: Fel i bokningsdata
                             content:
@@ -251,6 +130,9 @@ paths:
                                     schema:
                                         type: object
                                         properties:
+                                            success:
+                                                type: boolean
+                                                example: false
                                             message:
                                                 type: string
                                                 example: '"name" is required'
@@ -283,7 +165,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/Booking'
+                            $ref: '#/components/schemas/BookingResponse'
             responses:
                 '200':
                     description: Booking updated successfully
@@ -497,43 +379,34 @@ components:
                     type: integet
                     example: 1
                 rooms:
-                          type: array
-                items:
-                    type: object
-                    properties:
-                        roomType:
-                            type: string
-                            example: "single"
-                        amount:
-                            type: integer
-                            example: 1
-                checkIn:
-                    type: string
-                    format: date-time
-                    example: "2025-10-01T00:00:00.000Z"
-                checkOut:
-                    type: string
-                    format: date-time
-                    example: "2025-10-02T00:00:00.000Z"
-                nights:
+                    type: array
+                    items:
+                        type: object
+                        properties:
+                            roomType:
+                                type: string
+                                enum: [single, double, suite]
+                                example: "single"
+                            amount:
+                                type: integer
+                                example: 1
+                totalRooms:
                     type: integer
                     example: 1
                 totalPrice:
                     type: number
                     example: 500
-                totalRooms:
+                checkIn:
+                    type: string
+                    format: date
+                    example: "2025-10-01"
+                checkOut:
+                    type: string
+                    format: date
+                    example: "2025-10-02"
+                nights:
                     type: integer
                     example: 1
-                createdAt:
-                    type: string
-                    format: date-time
-                    example: "2025-09-19T10:18:23.796Z"
-                itemType:
-                    type: string
-                    example: "booking"
-                pk:
-                    type: string
-                    example: "BOOKING"
-                sk:
-                    type: string
-                    example: "eb88"
+
+
+
