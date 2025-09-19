@@ -98,7 +98,7 @@ export const addBooking = async ({ name, email, rooms, guests, checkIn, nights }
 
   try {
     await docClient.send(command);
-    return { success: true, bookingId, name, guests, rooms, totalRooms: newBookingRooms, totalPrice, checkIn, checkOut };
+    return { success: true, ...item };
   } catch (error) {
     console.error(`Error from db: `, error.message);
     return { success: false, message: `Error saving booking: ${error.message}` };
@@ -190,7 +190,8 @@ export const updateBooking = async (bookingId, updateData) => {
 
   try {
     const result = await docClient.send(updateCommand);
-    return { success: true, booking: result.Attributes };
+    const formatted = formatBookingResponse(result.Attributes);
+    return { success: true, booking: formatted };
   } catch (error) {
     return { success: false, message: `Error updating booking: ${error.message}` };
   }
