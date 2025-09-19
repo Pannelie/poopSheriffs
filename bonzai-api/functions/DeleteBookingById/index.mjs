@@ -1,4 +1,4 @@
-import { sendResponse } from "../../responses/index.mjs";
+import { sendResponse, formatBookingResponse } from "../../responses/index.mjs";
 import { throwError } from "../../utils/throwError.mjs";
 import { deleteBooking } from "../../services/bookings.mjs";
 import { errorHandler } from "../../middlewares/errorHandler.mjs";
@@ -21,9 +21,10 @@ export const handler = middy(async (event) => {
   if (!deletedBooking) {
     throwError(`No booking found with id ${bookingId}`, 404);
   }
+  const formattedDeletedBooking = formatBookingResponse(deletedBooking);
   // Delete successful
   return sendResponse(200, {
     message: "Booking deleted successfully",
-    deletedBooking,
+    deletedBooking: formattedDeletedBooking,
   });
 }).use(errorHandler());
