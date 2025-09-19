@@ -1,7 +1,9 @@
 import { docClient } from "./client.mjs";
 import { GetCommand, PutCommand, QueryCommand, DeleteCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
-import { getRoomCapacity, getRoomPrice } from "./room.mjs";
+// import { getRoomCapacity, getRoomPrice } from "./room.mjs";
 import { generateId } from "../utils/uuid.mjs";
+import { validateBookingCapacity } from "../utils/booking.mjs";
+import { calculateCheckout, formatDateForResponse } from "../utils/date.mjs";
 
 export const getAllBookings = async () => {
   const command = new QueryCommand({
@@ -14,7 +16,14 @@ export const getAllBookings = async () => {
 
   try {
     const result = await docClient.send(command);
-    return result.Items || [];
+    // converts weird date into normal date for bookings
+    const bookings = (result.Items || []).map((b) => ({
+      ...b,
+      checkIn: formatDateForResponse(b.checkIn),
+      checkOut: formatDateForResponse(b.checkOut),
+      createdAt: formatDateForResponse(b.createdAt),
+    }));
+    return bookings;
   } catch (error) {
     console.error({ message: `${error.message} from getAllBookings` });
     throw new Error("Could not fetch bookings");
@@ -22,57 +31,13 @@ export const getAllBookings = async () => {
 };
 
 export const addBooking = async ({ name, email, rooms, guests, checkIn, nights }) => {
-  const bookingId = generateId(4);
-  //För varje rum i bokningen så adderas antalet under "amount"
-  const newBookingRooms = rooms.reduce((sum, room) => sum + room.amount, 0);
-
-  // Räkna ut checkOut baserat på checkIn och antal nätter
-  let checkOut = null;
-  if (checkIn && nights) {
-    const checkInDate = new Date(checkIn);
-    checkOut = new Date(checkInDate);
-    checkOut.setDate(checkInDate.getDate() + Number(nights));
-    checkOut = checkOut.toISOString();
-  }
   if (nights && isNaN(Number(nights))) {
     return { success: false, message: "Nights must be a number" };
   }
 
-  //Kontrollerar hur många rum som är bokade totalt på hotellet
-  const allBookings = await getAllBookings();
-  const totalBooked = allBookings.reduce((sum, item) => sum + Number(item.totalRooms), 0);
-  const maxRooms = 20;
-  const availableRooms = maxRooms - totalBooked;
-
-  if (availableRooms <= 0) {
-    console.error("Cannot book rooms: hotel would exceed max capacity of 20 rooms.");
-    return { success: false, message: "No rooms available: hotel is fully booked" };
-  }
-
-  if (newBookingRooms > availableRooms) {
-    console.error("Cannot book rooms: hotel would exceed max capacity of 20 rooms.");
-    return {
-      success: false,
-      message: `Only ${availableRooms} room(s) available`,
-      availableRooms,
-    };
-  }
-
-  let totalPrice = 0;
-  let totalCapacity = 0;
-
-  for (const room of rooms) {
-    const { roomType, amount } = room;
-
-    const price = await getRoomPrice(room.roomType);
-    const maxGuestsPerRoom = await getRoomCapacity(roomType);
-
-    totalPrice += price * amount * nights;
-    totalCapacity += maxGuestsPerRoom * amount;
-  }
-  if (guests > totalCapacity) {
-    return { success: false, message: "Too many guests for selected rooms" };
-  }
+  const { totalPrice, totalCapacity, totalRooms } = await validateBookingCapacity({ rooms, guests, nights });
+  const bookingId = generateId(4);
+  const checkOut = calculateCheckout(checkIn, nights);
 
   const item = {
     pk: "BOOKING",
@@ -84,10 +49,10 @@ export const addBooking = async ({ name, email, rooms, guests, checkIn, nights }
     guests,
     rooms,
     nights,
-    totalRooms: newBookingRooms,
+    totalRooms,
     totalPrice,
-    checkIn: new Date(checkIn).toISOString(),
-    checkOut, // <-- nu beräknad automatiskt
+    checkIn: new Date(checkIn).toISOString(), // <-- normal dates format
+    checkOut: new Date(checkOut).toISOString(), // <-- calculates automatically
     createdAt: new Date().toISOString(),
   };
 
@@ -101,8 +66,31 @@ export const addBooking = async ({ name, email, rooms, guests, checkIn, nights }
     return { success: true, ...item };
   } catch (error) {
     console.error(`Error from db: `, error.message);
-    return { success: false, message: `Error saving booking: ${error.message}` };
+    return {
+      success: false,
+      message: `Error saving booking: ${error.message}`,
+    };
   }
+};
+
+// GET BOOKING BY ID
+import { client } from "./client.mjs";
+import { GetItemCommand } from "@aws-sdk/client-dynamodb";
+import { unmarshall } from "@aws-sdk/util-dynamodb";
+
+export const getBookingById = async (id) => {
+  const command = new GetItemCommand({
+    TableName: "bonzai-table",
+    Key: {
+      pk: { S: "BOOKING" },
+      sk: { S: id },
+    },
+  });
+
+  const result = await client.send(command);
+  if (!result.Item) return null;
+
+  return unmarshall(result.Item);
 };
 
 //==PUT UPPDATERA BOKNING
@@ -124,53 +112,40 @@ export const updateBooking = async (bookingId, updateData) => {
     }
     existingBooking = result.Item;
   } catch (error) {
-    return { success: false, message: `Error fetching booking: ${error.message}` };
+    return {
+      success: false,
+      message: `Error fetching booking: ${error.message}`,
+    };
   }
 
-  // Hantera checkIn och checkOut-format
-  if (updateData.checkIn) {
-    updateData.checkIn = new Date(updateData.checkIn).toISOString();
-  }
-
-  if (updateData.checkOut) {
-    updateData.checkOut = new Date(updateData.checkOut).toISOString();
-  }
-
-  // Uppdatera checkOut baserat på antal nätter
-  if (updateData.nights && (updateData.checkIn || existingBooking.checkIn)) {
-    const checkInDate = new Date(updateData.checkIn || existingBooking.checkIn);
-    if (!isNaN(Number(updateData.nights))) {
-      let checkOut = new Date(checkInDate);
-      checkOut.setDate(checkInDate.getDate() + Number(updateData.nights));
-      updateData.checkOut = checkOut.toISOString();
-    }
-  }
-  //Beräkna totalPrice
   const rooms = updateData.rooms || existingBooking.rooms;
-  const nights = Number(updateData.nights || existingBooking.nights);
+  const nights = Number(updateData.nights ?? existingBooking.nights);
+  const guests = Number(updateData.guests ?? existingBooking.guests);
 
-  let totalPrice = 0;
+  const { totalPrice, totalRooms } = await validateBookingCapacity({ rooms, guests, nights, bookingId });
 
-  for (const room of rooms) {
-    const { roomType, amount } = room;
-    const price = await getRoomPrice(roomType);
+  const checkIn = updateData.checkIn ?? existingBooking.checkIn;
+  const checkOut = calculateCheckout(checkIn, nights);
 
-    totalPrice += price * amount * nights;
-  }
-
-  updateData.totalPrice = totalPrice;
+  const updatePayload = {
+    ...updateData,
+    totalRooms,
+    totalPrice,
+    checkOut,
+    checkIn: new Date(checkIn).toISOString(),
+  };
 
   // Bygg UpdateExpression dynamiskt
   let updateExpression = "set";
   const ExpressionAttributeNames = {};
   const ExpressionAttributeValues = {};
 
-  Object.keys(updateData).forEach((key, index) => {
+  Object.keys(updatePayload).forEach((key, index) => {
     const attrName = `#attr${index}`;
     const attrValue = `:val${index}`;
     updateExpression += ` ${attrName} = ${attrValue},`;
     ExpressionAttributeNames[attrName] = key;
-    ExpressionAttributeValues[attrValue] = updateData[key];
+    ExpressionAttributeValues[attrValue] = updatePayload[key];
   });
 
   // Ta bort sista kommat
@@ -193,7 +168,10 @@ export const updateBooking = async (bookingId, updateData) => {
     const formatted = formatBookingResponse(result.Attributes);
     return { success: true, booking: formatted };
   } catch (error) {
-    return { success: false, message: `Error updating booking: ${error.message}` };
+    return {
+      success: false,
+      message: `Error updating booking: ${error.message}`,
+    };
   }
 };
 
@@ -213,6 +191,9 @@ export const deleteBooking = async (bookingId) => {
     return result.Attributes;
   } catch (error) {
     console.error(`Error deleting booking with id ${bookingId}:`, error.message);
-    return { success: false, message: `Error deleting booking: ${error.message}` };
+    return {
+      success: false,
+      message: `Error deleting booking: ${error.message}`,
+    };
   }
 };

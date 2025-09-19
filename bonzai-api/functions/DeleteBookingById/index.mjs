@@ -1,39 +1,29 @@
 import { sendResponse } from "../../responses/index.mjs";
+import { throwError } from "../../utils/throwError.mjs";
 import { deleteBooking } from "../../services/bookings.mjs";
+import { errorHandler } from "../../middlewares/errorHandler.mjs";
+import middy from "@middy/core";
 
-export const handler = async (event) => {
-  try {
-    console.log("Event:", JSON.stringify(event));
-    // Extract bookingId from path parameters
-    const bookingId = event.pathParameters?.id;
+export const handler = middy(async (event) => {
+  console.log("Event:", JSON.stringify(event));
+  // Extract bookingId from path parameters
+  const bookingId = event.pathParameters?.id;
 
-    // Validate bookingId
-    if (!bookingId) {
-      return sendResponse(400, {
-        message: "Missing bookingId",
-      });
-    }
-
-    // Delete booking
-    const deletedBooking = await deleteBooking(bookingId);
-
-    // If no booking found to delete
-    if (!deletedBooking) {
-      return sendResponse(404, {
-        message: `No booking found with id ${bookingId}`,
-      });
-    }
-    // Delete successful
-    return sendResponse(200, {
-      message: "Booking deleted successfully",
-      deletedBooking,
-    });
-  } catch (error) {
-    // Error handling
-    console.error("Error in handler:", error);
-    return sendResponse(500, {
-      message: "Internal Server Error",
-      error: error.message,
-    });
+  // Validate bookingId
+  if (!bookingId) {
+    throwError("Missing bookingId", 400);
   }
-};
+
+  // Delete booking
+  const deletedBooking = await deleteBooking(bookingId);
+
+  // If no booking found to delete
+  if (!deletedBooking) {
+    throwError(`No booking found with id ${bookingId}`, 404);
+  }
+  // Delete successful
+  return sendResponse(200, {
+    message: "Booking deleted successfully",
+    deletedBooking,
+  });
+}).use(errorHandler());
