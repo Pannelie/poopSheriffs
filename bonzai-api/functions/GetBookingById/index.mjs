@@ -1,45 +1,28 @@
-import { client } from '../../services/client.mjs';
-import { GetItemCommand } from '@aws-sdk/client-dynamodb';
-import { unmarshall } from '@aws-sdk/util-dynamodb';
+import { getBookingById } from '../../services/bookings.mjs';
 import { sendResponse } from '../../responses/index.mjs';
 
 export const handler = async (event) => {
-	console.log('Event:', JSON.stringify(event, null, 2));
-
 	try {
 		const { id } = event.pathParameters || {};
 
 		if (!id) {
-			return sendResponse(400, {
-				message:
-					'This ID does not exist. Please put on glasses and take a closer look! 8-)',
-			});
+			return sendResponse(400, { message: 'Missing bookingId' });
 		}
 
-		const command = new GetItemCommand({
-			TableName: 'bonzai-table',
-			Key: {
-				pk: { S: 'BOOKING' },
-				sk: { S: id },
-			},
-		});
+		const booking = await getBookingById(id);
 
-		const result = await client.send(command);
-
-		if (!result.Item) {
+		if (!booking) {
 			return sendResponse(404, {
-				message: `There is no booking with the id of ${id} here...? :---)`,
+				message: `No booking found with id ${id}`,
 			});
 		}
-
-		// Konverter DynamoDB Item til vanlig JS objekt
-		const booking = unmarshall(result.Item);
 
 		return sendResponse(200, booking);
 	} catch (error) {
+		console.error('Error in handler:', error);
 		return sendResponse(500, {
-			message:
-				'Something went EXTREMELY wrong here when you get an error 500!! -- no bookings, no nothing.',
+			message: 'Internal Server Error',
+			error: error.message,
 		});
 	}
 };

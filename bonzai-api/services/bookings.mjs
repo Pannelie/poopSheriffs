@@ -83,6 +83,26 @@ export const addBooking = async ({ name, email, rooms, guests, checkIn, nights }
   }
 };
 
+// GET BOOKING BY ID
+import { client } from './client.mjs';
+import { GetItemCommand } from '@aws-sdk/client-dynamodb';
+import { unmarshall } from '@aws-sdk/util-dynamodb';
+
+export const getBookingById = async (id) => {
+	const command = new GetItemCommand({
+		TableName: 'bonzai-table',
+		Key: {
+			pk: { S: 'BOOKING' },
+			sk: { S: id },
+		},
+	});
+
+	const result = await client.send(command);
+	if (!result.Item) return null;
+
+	return unmarshall(result.Item);
+};
+
 //==PUT UPPDATERA BOKNING
 export const updateBooking = async (bookingId, updateData) => {
   // Hämta befintlig bokning först
