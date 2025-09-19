@@ -6,8 +6,6 @@ import { errorHandler } from "../../middlewares/errorHandler.mjs";
 import { validateBooking } from "../../middlewares/validateBooking.mjs";
 import { addBooking } from "../../services/bookings.mjs";
 
-//Länkat till errorHandler som ännu inte är skapad
-
 export const handler = middy(async (event) => {
   const booking = await addBooking(event.body);
   if (!booking.success) {

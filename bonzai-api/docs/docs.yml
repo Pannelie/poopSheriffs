@@ -1,15 +1,8 @@
-# JESPER SIN VIDEO PÅ SWAGGER
-# https://funet.sharepoint.com/sites/FrontendutvecklareYH-Fe24Distans/_layouts/15/stream.aspx?id=%2Fsites%2FFrontendutvecklareYH%2DFe24Distans%2FDelade%20dokument%2FInspelningar%2FF%C3%B6rel%C3%A4sning%20FE24%20Distans%2D20250527%5F090059%2DM%C3%B6tesinspelning%2Emp4&nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJTdHJlYW1XZWJBcHAiLCJyZWZlcnJhbFZpZXciOiJTaGFyZURpYWxvZy1MaW5rIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXcifX0&ga=1&referrer=StreamWebApp%2EWeb&referrerScenario=AddressBarCopied%2Eview%2Eaf093ac1%2De59e%2D4c1f%2Db31a%2De3849899d6d3
-
-# SWAGGER WEBPAGE: http://localhost:3000/api/docs/#/API%20bookings/get_api_bookings
-# npm run dev obvs first
-
 openapi: 3.0.1
 info:
     title: Bonzai Booking API
     version: 1.0.0
     description: API Documentation for Bonzai Booking API
-    # url fra insomnia her
 servers:
   - url: https://mor2xg7702.execute-api.eu-north-1.amazonaws.com
     description: Grund-URL
@@ -165,7 +158,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/BookingResponse'
+                            $ref: '#/components/schemas/UpdateBooking'
             responses:
                 '200':
                     description: Booking updated successfully
@@ -178,7 +171,7 @@ paths:
                                         type: string
                                         example: Booking updated successfully
                                     updatedBooking:
-                                        $ref: '#/components/schemas/Booking'
+                                        $ref: '#/components/schemas/BookingResponse'
                 '400':
                     description: Invalid input
                     content:
@@ -226,7 +219,7 @@ paths:
                                         type: string
                                         example: Booking deleted successfully
                                     deletedBooking:
-                                        $ref: '#/components/schemas/Booking'
+                                        $ref: '#/components/schemas/BookingResponse'
                 '400':
                     description: Invalid ID supplied
                     content:
