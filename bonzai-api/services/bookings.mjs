@@ -4,7 +4,6 @@ import { GetCommand, PutCommand, QueryCommand, DeleteCommand, UpdateCommand } fr
 import { generateId } from "../utils/uuid.mjs";
 import { validateBookingCapacity } from "../utils/booking.mjs";
 import { calculateCheckout, formatDateForResponse } from "../utils/date.mjs";
-import { formatBookingResponse } from "../responses/index.mjs";
 
 export const getAllBookings = async () => {
   const command = new QueryCommand({
