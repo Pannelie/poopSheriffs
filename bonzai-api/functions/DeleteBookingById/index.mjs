@@ -9,8 +9,8 @@ export const handler = async (event) => {
 
     // Validate bookingId
     if (!bookingId) {
-      return sendResponse(400, { 
-        message: "Missing bookingId" 
+      return sendResponse(400, {
+        message: "Missing bookingId",
       });
     }
 
@@ -19,21 +19,21 @@ export const handler = async (event) => {
 
     // If no booking found to delete
     if (!deletedBooking) {
-      return sendResponse(404, { 
-        message: `No booking found with id ${bookingId}` 
+      return sendResponse(404, {
+        message: `No booking found with id ${bookingId}`,
       });
     }
     // Delete successful
-    return sendResponse(200, { 
-      message: "Booking deleted successfully", 
-      deletedBooking 
+    return sendResponse(200, {
+      message: "Booking deleted successfully",
+      deletedBooking,
     });
   } catch (error) {
     // Error handling
     console.error("Error in handler:", error);
-    return sendResponse(500, { 
+    return sendResponse(500, {
       message: "Internal Server Error",
-      error: error.message
+      error: error.message,
     });
   }
-}
+};
