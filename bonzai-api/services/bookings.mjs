@@ -63,17 +63,7 @@ export const addBooking = async ({ name, email, rooms, guests, checkIn, nights }
 
   try {
     await docClient.send(command);
-    return {
-      success: true,
-      bookingId,
-      name,
-      guests,
-      rooms,
-      totalRooms,
-      totalPrice,
-      checkIn: formatDateForResponse(checkIn), // <-- puts normal dates in booking
-      checkOut: formatDateForResponse(checkOut),
-    };
+    return { success: true, ...item };
   } catch (error) {
     console.error(`Error from db: `, error.message);
     return {
@@ -84,23 +74,23 @@ export const addBooking = async ({ name, email, rooms, guests, checkIn, nights }
 };
 
 // GET BOOKING BY ID
-import { client } from './client.mjs';
-import { GetItemCommand } from '@aws-sdk/client-dynamodb';
-import { unmarshall } from '@aws-sdk/util-dynamodb';
+import { client } from "./client.mjs";
+import { GetItemCommand } from "@aws-sdk/client-dynamodb";
+import { unmarshall } from "@aws-sdk/util-dynamodb";
 
 export const getBookingById = async (id) => {
-	const command = new GetItemCommand({
-		TableName: 'bonzai-table',
-		Key: {
-			pk: { S: 'BOOKING' },
-			sk: { S: id },
-		},
-	});
+  const command = new GetItemCommand({
+    TableName: "bonzai-table",
+    Key: {
+      pk: { S: "BOOKING" },
+      sk: { S: id },
+    },
+  });
 
-	const result = await client.send(command);
-	if (!result.Item) return null;
+  const result = await client.send(command);
+  if (!result.Item) return null;
 
-	return unmarshall(result.Item);
+  return unmarshall(result.Item);
 };
 
 //==PUT UPPDATERA BOKNING
@@ -133,7 +123,6 @@ export const updateBooking = async (bookingId, updateData) => {
   const guests = Number(updateData.guests ?? existingBooking.guests);
 
   const { totalPrice, totalRooms } = await validateBookingCapacity({ rooms, guests, nights, bookingId });
-
   const checkIn = updateData.checkIn ?? existingBooking.checkIn;
   const checkOut = calculateCheckout(checkIn, nights);
 
@@ -175,13 +164,7 @@ export const updateBooking = async (bookingId, updateData) => {
 
   try {
     const result = await docClient.send(updateCommand);
-    // normal dates response for updateBooking
-    const updated = result.Attributes;
-    updated.checkIn = formatDateForResponse(updated.checkIn);
-    updated.checkOut = formatDateForResponse(updated.checkOut);
-    updated.createdAt = formatDateForResponse(updated.createdAt);
-
-    return { success: true, booking: updated };
+    return { success: true, booking: result.Attributes };
   } catch (error) {
     return {
       success: false,
