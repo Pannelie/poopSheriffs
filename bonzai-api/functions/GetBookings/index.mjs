@@ -1,5 +1,5 @@
 import middy from "@middy/core";
-import { sendResponse } from "../../responses/index.mjs";
+import { formatBookingResponse, sendResponse } from "../../responses/index.mjs";
 import { getAllBookings } from "../../services/bookings.mjs";
 import { errorHandler } from "../../middlewares/errorHandler.mjs";
 // import { client } from "../../services/client.mjs";
@@ -18,7 +18,7 @@ export const handler = middy(async (event) => {
     return sendResponse(200, {
       success: true,
       message: `Found ${bookings.length} bookings`,
-      bookings,
+      bookings: bookings.map(formatBookingResponse),
     });
   }
 }).use(errorHandler());
