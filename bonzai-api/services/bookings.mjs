@@ -4,6 +4,7 @@ import { GetCommand, PutCommand, QueryCommand, DeleteCommand, UpdateCommand } fr
 import { generateId } from "../utils/uuid.mjs";
 import { validateBookingCapacity } from "../utils/booking.mjs";
 import { calculateCheckout, formatDateForResponse } from "../utils/date.mjs";
+import { formatBookingResponse } from "../responses/index.mjs";
 
 export const getAllBookings = async () => {
   const command = new QueryCommand({
@@ -123,7 +124,6 @@ export const updateBooking = async (bookingId, updateData) => {
   const guests = Number(updateData.guests ?? existingBooking.guests);
 
   const { totalPrice, totalRooms } = await validateBookingCapacity({ rooms, guests, nights, bookingId });
-
   const checkIn = updateData.checkIn ?? existingBooking.checkIn;
   const checkOut = calculateCheckout(checkIn, nights);
 
@@ -165,8 +165,7 @@ export const updateBooking = async (bookingId, updateData) => {
 
   try {
     const result = await docClient.send(updateCommand);
-    const formatted = formatBookingResponse(result.Attributes);
-    return { success: true, booking: formatted };
+    return { success: true, booking: result.Attributes };
   } catch (error) {
     return {
       success: false,
